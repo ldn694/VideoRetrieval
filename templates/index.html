@@ -13,20 +13,31 @@
             height: 100vh;
         }
         .input-section {
-            flex: 3;
+            flex: 2;
             padding: 20px;
             background-color: #f4f4f4;
             border-right: 1px solid #ccc;
         }
-        .frames-section {
-            flex: 7;
+        .right-section {
+            flex: 8;
             padding: 20px;
             display: flex;
+            flex-direction: column;
+        }
+        .csv-section {
+            display: flex;
+            justify-content: start;
+            margin-bottom: 20px;
+        }
+        .frames-section {
+            display: flex;
             flex-wrap: wrap;
+            flex-grow: 1;
+            overflow-y: auto;
         }
         .frame {
             margin: 10px;
-            width: calc(25% - 20px);
+            width: calc(20% - 20px);
             cursor: pointer;
             border: 1px solid #ccc;
             padding: 10px;
@@ -77,6 +88,7 @@
 </head>
 <body>
     <div class="container">
+        <!-- Left section for query input -->
         <div class="input-section">
             <h1>Retrieve Video Frames</h1>
             <form method="POST">
@@ -92,15 +104,26 @@
                 <button type="submit">Submit</button>
             </form>
         </div>
-        <div class="frames-section" id="framesSection">
-            {% if images %}
-                {% for img_str, video_name, index, sim in images %}
-                    <div class="frame" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">
-                        <img src="data:image/jpeg;base64,{{ img_str }}" alt="Frame" onclick="openModal('{{ img_str }}')">
-                        <p>{{ video_name }} - Frame {{ index }} (Similarity: {{ sim }})</p>
-                    </div>
-                {% endfor %}
-            {% endif %}
+        
+        <!-- Right section for frames display and CSV download -->
+        <div class="right-section">
+            <!-- CSV Download Section -->
+            <div class="csv-section">
+                <input type="text" id="custom_text" placeholder="Custom Text (optional)">
+                <button onclick="extractCSV()">Download CSV</button>
+            </div>
+            
+            <!-- Frames Display Section -->
+            <div class="frames-section" id="framesSection">
+                {% if images %}
+                    {% for img_str, video_name, frame_idx, sim in images %}
+                        <div class="frame" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <img src="data:image/jpeg;base64,{{ img_str }}" alt="Frame" onclick="openModal('{{ img_str }}')">
+                            <p>{{ video_name }} - Frame {{ frame_idx }} {{ sim }}</p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -147,12 +170,38 @@
             modal.style.display = "none";
         }
 
-        // Close the modal if clicked outside the image
-        window.onclick = function(event) {
-            var modal = document.getElementById("myModal");
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
+        // Function to extract the current order and send it to the server
+        function extractCSV() {
+            const frames = document.querySelectorAll('.frame');
+            const order = [];
+            const customText = document.getElementById('custom_text').value;
+
+            frames.forEach(frame => {
+                const video_name = frame.querySelector('p').textContent.split(' - ')[0];
+                const frame_idx = frame.querySelector('p').textContent.split('Frame ')[1].split(' ')[0];
+                order.push({ video_name, frame_idx });
+            });
+
+            // Send the data to the server
+            const formData = new FormData();
+            formData.append('order', JSON.stringify(order));
+            formData.append('custom_text', customText); // Pass the custom text to the backend
+
+            fetch('/download_csv', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Create a link to download the file
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'query_answer.csv';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            });
         }
     </script>
 </body>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import os
 import torch
 import open_clip
@@ -8,10 +8,12 @@ import matplotlib.pyplot as plt
 import io
 import base64
 import json
+import csv
 from googletrans import Translator
 
 app = Flask(__name__)
 
+# Function to translate the query
 def translate_query(query):
     translator = Translator()
     translated_query = translator.translate(query, dest='en').text
@@ -26,10 +28,12 @@ def index():
     if request.method == 'POST':
         # Get input values
         query = request.form['query']
-        query = translate_query(query)
-        print(query)
         folder_path = request.form['folder_path']
         num_frames = int(request.form['num_frames'])
+
+        # Translate the query
+        query = translate_query(query)
+        print("Translated query:", query)
 
         # Tokenize the input query
         text = [query]
@@ -80,16 +84,39 @@ def index():
         for sim, video_name, index in top_frames:
             frame = list_frames[video_name][index]
             img = Image.open(os.path.join(folder_path, 'keyframes', video_name, frame['file_name']))
+            frame_idx = frame['frame_idx']
             
             # Convert image to base64
             buffered = io.BytesIO()
             img.save(buffered, format="JPEG")
             img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-            images.append((img_str, video_name, index, sim))
+            images.append((img_str, video_name, frame_idx, sim))
 
         return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
 
     return render_template('index.html')
+
+# New route to handle the extraction of the current order and save to CSV
+@app.route('/download_csv', methods=['POST'])
+def download_csv():
+    data = json.loads(request.form['order'])  # Receive the order from the frontend
+    custom_text = request.form['custom_text']  # Receive custom text
+
+    # Create a CSV file
+    csv_filename = 'query_answer.csv'
+    csv_filepath = os.path.join(os.getcwd(), csv_filename)
+
+    with open(csv_filepath, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        for row in data:
+            # If custom text is provided, add it as an extra column
+            if custom_text:
+                writer.writerow([row['video_name'], row['frame_idx'], custom_text])
+            else:
+                writer.writerow([row['video_name'], row['frame_idx']])
+
+    # Send the file to the client using 'download_name' instead of 'attachment_filename'
+    return send_file(csv_filepath, as_attachment=True, download_name=csv_filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
