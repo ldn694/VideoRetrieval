@@ -1,0 +1,7 @@
+open_clip_torch 
+matplotlib
+numpy
+flask
+unidecode
+pillow
+googletrans==4.0.0-rc1

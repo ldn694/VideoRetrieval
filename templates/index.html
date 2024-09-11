@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Frame Retrieval</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .input-section {
+            flex: 3;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-right: 1px solid #ccc;
+        }
+        .frames-section {
+            flex: 7;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .frame {
+            margin: 10px;
+            width: calc(25% - 20px);
+            cursor: pointer;
+            border: 1px solid #ccc;
+            padding: 10px;
+            position: relative;
+        }
+        img {
+            width: 100%;
+            height: auto;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Dragging styles */
+        .dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-section">
+            <h1>Retrieve Video Frames</h1>
+            <form method="POST">
+                <label for="query">Text Query:</label>
+                <input type="text" id="query" name="query" required><br><br>
+                
+                <label for="folder_path">Folder Path:</label>
+                <input type="text" id="folder_path" name="folder_path" required><br><br>
+                
+                <label for="num_frames">Number of Frames:</label>
+                <input type="number" id="num_frames" name="num_frames" required><br><br>
+                
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div class="frames-section" id="framesSection">
+            {% if images %}
+                {% for img_str, video_name, index, sim in images %}
+                    <div class="frame" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <img src="data:image/jpeg;base64,{{ img_str }}" alt="Frame" onclick="openModal('{{ img_str }}')">
+                        <p>{{ video_name }} - Frame {{ index }} (Similarity: {{ sim }})</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    <script>
+        // Drag-and-Drop Logic
+        let dragged;
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            dragged = event.target.closest(".frame");
+            dragged.classList.add("dragging");
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const target = event.target.closest(".frame");
+            if (dragged !== target) {
+                const framesSection = document.getElementById('framesSection');
+                framesSection.insertBefore(dragged, target);
+            }
+            dragged.classList.remove("dragging");
+        }
+
+        // Modal Logic
+        function openModal(imageSrc) {
+            var modal = document.getElementById("myModal");
+            var modalImg = document.getElementById("modalImg");
+
+            modal.style.display = "block";
+            modalImg.src = "data:image/jpeg;base64," + imageSrc;
+        }
+
+        function closeModal() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+
+        // Close the modal if clicked outside the image
+        window.onclick = function(event) {
+            var modal = document.getElementById("myModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
