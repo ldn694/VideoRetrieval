@@ -122,10 +122,10 @@
             <!-- Frames Display Section -->
             <div class="frames-section" id="framesSection">
                 {% if images %}
-                    {% for img_str, video_name, frame_idx, sim in images %}
+                    {% for img_str, video_name, frame_idx, sim, minute, second in images %}
                         <div class="frame" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">
                             <img src="data:image/jpeg;base64,{{ img_str }}" alt="Frame" onclick="openModal('{{ img_str }}')">
-                            <p>{{ video_name }} - Frame {{ frame_idx }} {{ sim }}</p>
+                            <p>{{ video_name }} - Frame {{ frame_idx }} {{ sim }} {{ minute }}:{{ second }}</p>
                         </div>
                     {% endfor %}
                 {% endif %}

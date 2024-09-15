@@ -67,6 +67,9 @@ def index():
                 frame = list_frames[video_name][index]
                 file_name = frame['file_name']
                 frame_idx = frame['frame_idx']
+                timestamp = frame['timestamp']
+                minute = int(float(timestamp)) // 60
+                second = int(float(timestamp)) % 60
                 cache_frame_key = f"{video_name}_{file_name}"
                 if cache_frame_key not in cache_frame:
                     if len(cache_frame) >= max_cache_frame_size:
@@ -82,7 +85,7 @@ def index():
                     cache_frame[cache_frame_key] = img_str
                 else:
                     img_str = cache_frame[cache_frame_key]
-                images.append((img_str, video_name, frame_idx, sim))
+                images.append((img_str, video_name, frame_idx, sim, minute, second))
 
             return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
 
