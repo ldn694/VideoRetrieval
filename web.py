@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, session
 import os
 import torch
 import open_clip
@@ -10,8 +10,16 @@ import base64
 import json
 import csv
 from googletrans import Translator
+from VideoRetrieval import translate_query, retrieve_frames
 
 app = Flask(__name__)
+app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
+
+# In-memory cache for storing frame data
+cache_query = {}
+cache_frame = {}
+max_cache_query_size = 10
+max_cache_frame_size = 1000
 
 # Function to translate the query
 def translate_query(query):
@@ -30,69 +38,60 @@ def index():
         query = request.form['query']
         folder_path = request.form['folder_path']
         num_frames = int(request.form['num_frames'])
+        view_mode = request.form['view_mode']
 
-        # Translate the query
-        query = translate_query(query)
-        print("Translated query:", query)
+        top_frames, list_frames = retrieve_frames(query, folder_path, num_frames)
 
-        # Tokenize the input query
-        text = [query]
-        text_tokens = tokenizer.tokenize(text)
-        text_tokens = text_tokens.to(device)
-        
-        # Encode text features
-        with torch.no_grad():
-            text_features = model.encode_text(text_tokens).float()
-            text_features /= text_features.norm(dim=-1, keepdim=True)
+        # Generate a unique key for this query
+        cache_query_key = f"{query}_{folder_path}_{num_frames}"
 
-        # Load frame data
-        frame_data_path = os.path.join(folder_path, 'frame_data.json')
-        if not os.path.exists(frame_data_path):
-            return 'frame_data.json not found in the provided folder path'
-        
-        frame_data = json.load(open(frame_data_path))
-        list_frames = {}
-        list_videos = []
 
-        # Organize frame data by video
-        l = 0
-        while l < len(frame_data):
-            r = l
-            while r < len(frame_data) and frame_data[r]['video_name'] == frame_data[l]['video_name']:
-                r += 1
-            video_name = frame_data[l]['video_name']
-            list_frames[video_name] = frame_data[l:r]
-            list_videos.append(video_name)
-            l = r
+        # Check if the frames are already cached in memory
+        if cache_query_key not in cache_query:
+            if len(cache_query) >= max_cache_query_size:
+                # Remove the oldest cache entry
+                oldest_key = next(iter(cache_query))
+                del cache_query[oldest_key]
+            # Retrieve frames if they are not cached
+            top_frames, list_frames = retrieve_frames(query, folder_path, num_frames)
+            # Store the frames in the global cache
+            cache_query[cache_query_key] = (top_frames, list_frames)
 
-        # Calculate similarity scores
-        similiarity_all = []
-        for video_name in list_videos:
-            images_features_path = os.path.join(folder_path, 'MobileClip', video_name + '.pt')
-            if os.path.exists(images_features_path):
-                images_features = torch.load(images_features_path, map_location=device).float()
-                similiarity = (text_features @ images_features.transpose(1, 0)).squeeze(0)
-                for i in range(len(similiarity)):
-                    similiarity_all.append((similiarity[i].item(), video_name, i))
-        
-        # Sort and retrieve top frames based on similarity
-        similiarity_all.sort(reverse=True)
-        top_frames = similiarity_all[:num_frames]
+        # Load the frames from the cache
+        top_frames, list_frames = cache_query[cache_query_key]
 
-        # Prepare images to display
-        images = []
-        for sim, video_name, index in top_frames:
-            frame = list_frames[video_name][index]
-            img = Image.open(os.path.join(folder_path, 'keyframes', video_name, frame['file_name']))
-            frame_idx = frame['frame_idx']
-            
-            # Convert image to base64
-            buffered = io.BytesIO()
-            img.save(buffered, format="JPEG")
-            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-            images.append((img_str, video_name, frame_idx, sim))
+        if view_mode == 'frame':
+            # Frame view logic
+            images = []
+            for sim, video_name, index in top_frames:
+                frame = list_frames[video_name][index]
+                file_name = frame['file_name']
+                frame_idx = frame['frame_idx']
+                cache_frame_key = f"{video_name}_{file_name}"
+                if cache_frame_key not in cache_frame:
+                    if len(cache_frame) >= max_cache_frame_size:
+                        # Remove the oldest cache entry
+                        oldest_key = next(iter(cache_frame))
+                        del cache_frame[oldest_key]
+                    # Load the image
+                    img = Image.open(os.path.join(folder_path, 'keyframes', video_name, file_name))
+                    # Convert image to base64
+                    buffered = io.BytesIO()
+                    img.save(buffered, format="JPEG")
+                    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                    cache_frame[cache_frame_key] = img_str
+                else:
+                    img_str = cache_frame[cache_frame_key]
+                images.append((img_str, video_name, frame_idx, sim))
 
-        return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
+            return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
+
+        elif view_mode == 'clip':
+            # Clip view logic (to be implemented)
+            # You can fill in the clip retrieval code here later using cache.
+            images = []  # Placeholder for clip view logic
+
+            return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
 
     return render_template('index.html')
 

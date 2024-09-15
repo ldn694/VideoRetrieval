@@ -37,7 +37,7 @@
         }
         .frame {
             margin: 10px;
-            width: calc(20% - 20px);
+            width: calc(20%);
             cursor: pointer;
             border: 1px solid #ccc;
             padding: 10px;
@@ -100,6 +100,12 @@
                 
                 <label for="num_frames">Number of Frames:</label>
                 <input type="number" id="num_frames" name="num_frames" required><br><br>
+                
+                <label>View Mode:</label><br>
+                <input type="radio" id="frame_view" name="view_mode" value="frame" checked>
+                <label for="frame_view">Frame View</label><br>
+                <input type="radio" id="clip_view" name="view_mode" value="clip">
+                <label for="clip_view">Clip View</label><br><br>
                 
                 <button type="submit">Submit</button>
             </form>

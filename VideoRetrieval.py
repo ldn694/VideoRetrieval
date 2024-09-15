@@ -19,7 +19,8 @@ def translate_query(query):
 def retrieve_frames(query, folder_path, num_frames):
     if not os.path.exists(folder_path):
         folder_path = 'D:/AIC24/Data' # Change this to the path of the folder containing the data
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    #device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
     model, _, preprocess = open_clip.create_model_and_transforms('MobileCLIP-B', pretrained='datacompdr_lt',device=device)
 
     print('Model loaded')
@@ -66,15 +67,7 @@ def retrieve_frames(query, folder_path, num_frames):
     similiarity_all.sort(reverse=True)
     
 
-    frame_paths = []
-    for i in range(num_frames):
-        sim, video_name, index = similiarity_all[i]
-        frame = list_frames[video_name][index]
-        img_path = os.path.join(folder_path, 'keyframes', video_name, frame['file_name'])
-        print(img_path)
-        frame_paths.append(img_path)
-    
-    return frame_paths
+    return similiarity_all[:num_frames], list_frames
 
 
 
