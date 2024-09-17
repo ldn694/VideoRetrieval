@@ -97,7 +97,7 @@ def create_suggestion(retrieved_frames = []):
     combined_frames = []
     for query_number, frames in enumerate(retrieved_frames):
         for frame in frames:
-            combined_frames.append((frame[1], frame[2], frame[3], frame[0], query_number))
+            combined_frames.append((frame[1], frame[2], int(frame[3]), frame[0], query_number))
     
     # Sort the combined_frames list based on video_name first, then frame_number, then query_number
     combined_frames.sort(key=lambda x: (x[0], x[1], x[4]))

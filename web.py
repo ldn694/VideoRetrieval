@@ -10,7 +10,7 @@ import base64
 import json
 import csv
 from googletrans import Translator
-from VideoRetrieval import translate_query, retrieve_frames
+from VideoRetrieval import translate_query, retrieve_frames, convert_to_suggestion_input, create_suggestion
 
 app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
@@ -40,27 +40,25 @@ def index():
         num_frames = int(request.form['num_frames'])
         view_mode = request.form['view_mode']
 
-        top_frames, list_frames = retrieve_frames(query, folder_path, num_frames)
-
-        # Generate a unique key for this query
-        cache_query_key = f"{query}_{folder_path}_{num_frames}"
-
-
-        # Check if the frames are already cached in memory
-        if cache_query_key not in cache_query:
-            if len(cache_query) >= max_cache_query_size:
-                # Remove the oldest cache entry
-                oldest_key = next(iter(cache_query))
-                del cache_query[oldest_key]
-            # Retrieve frames if they are not cached
-            top_frames, list_frames = retrieve_frames(query, folder_path, num_frames)
-            # Store the frames in the global cache
-            cache_query[cache_query_key] = (top_frames, list_frames)
-
-        # Load the frames from the cache
-        top_frames, list_frames = cache_query[cache_query_key]
-
         if view_mode == 'frame':
+            top_frames, list_frames = retrieve_frames(query, folder_path, num_frames)
+            # Generate a unique key for this query
+            cache_query_key = f"{query}_{folder_path}_{num_frames}"
+
+
+            # Check if the frames are already cached in memory
+            if cache_query_key not in cache_query:
+                if len(cache_query) >= max_cache_query_size:
+                    # Remove the oldest cache entry
+                    oldest_key = next(iter(cache_query))
+                    del cache_query[oldest_key]
+                # Retrieve frames if they are not cached
+                top_frames, list_frames = retrieve_frames(query, folder_path, num_frames)
+                # Store the frames in the global cache
+                cache_query[cache_query_key] = (top_frames, list_frames)
+
+            # Load the frames from the cache
+            top_frames, list_frames = cache_query[cache_query_key]
             # Frame view logic
             images = []
             for sim, video_name, index in top_frames:
@@ -90,11 +88,29 @@ def index():
             return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
 
         elif view_mode == 'clip':
-            # Clip view logic (to be implemented)
-            # You can fill in the clip retrieval code here later using cache.
-            images = []  # Placeholder for clip view logic
+            # Clip view logic
+            queries = query.split(';')
+            suggestions_inputs = []
+            for query in queries:
+                top_frames, list_frames = retrieve_frames(query, folder_path, num_frames)
+                suggestions_input = convert_to_suggestion_input(top_frames, list_frames)
+                suggestions_inputs.append(suggestions_input)
 
-            return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
+            # Create suggestions for clips
+            suggestions = create_suggestion(suggestions_inputs)
+            
+            # Load the video_id.txt file to map video names to YouTube URLs
+            video_urls = {}
+            with open('video_id.txt', 'r') as f:
+                for line in f:
+                    video_name, video_url = line.strip().split(' ')
+                    video_urls[video_name] = video_url
+
+            return render_template(
+                'index.html',
+                suggestions=suggestions,
+                video_urls=video_urls
+            )
 
     return render_template('index.html')
 
