@@ -10,7 +10,7 @@ import base64
 import json
 import csv
 from googletrans import Translator
-from VideoRetrieval import translate_query, retrieve_frames, convert_to_suggestion_input, create_suggestion
+from VideoRetrieval import retrieve_frames, convert_to_suggestion_input, create_suggestion, retrieve_frames_multiple_queries
 import settings
 
 app = Flask(__name__)
@@ -41,92 +41,119 @@ model, _, preprocess = open_clip.create_model_and_transforms(
 def index():
     if request.method == 'POST':
         # Get input values
-        query = request.form['query']
+        # get all queries from the form
+        queries = request.form.getlist('query')
+        query = '#'.join(queries)
         folder_path = settings.DATA_PATH
         num_frames = int(request.form['num_frames'])
         view_mode = request.form['view_mode']
 
-        if view_mode == 'frame':
-            top_frames, list_frames = retrieve_frames(
-                query, folder_path, num_frames)
-            # Generate a unique key for this query
-            cache_query_key = f"{query}_{folder_path}_{num_frames}"
+        # if view_mode == 'frame':
+        #     suggestions = retrieve_frames_multiple_queries(
+        #         queries, folder_path, num_frames)
+        #     # Generate a unique key for this query
+        #     cache_query_key = f"{query}_{folder_path}_{num_frames}"
 
-            # Check if the frames are already cached in memory
-            if cache_query_key not in cache_query:
-                if len(cache_query) >= max_cache_query_size:
-                    # Remove the oldest cache entry
-                    oldest_key = next(iter(cache_query))
-                    del cache_query[oldest_key]
-                # Retrieve frames if they are not cached
-                top_frames, list_frames = retrieve_frames(
-                    query, folder_path, num_frames)
-                # Store the frames in the global cache
-                cache_query[cache_query_key] = (top_frames, list_frames)
+        #     # Check if the frames are already cached in memory
+        #     if cache_query_key not in cache_query:
+        #         if len(cache_query) >= max_cache_query_size:
+        #             # Remove the oldest cache entry
+        #             oldest_key = next(iter(cache_query))
+        #             del cache_query[oldest_key]
+        #         # Retrieve frames if they are not cached
+        #         suggestions = retrieve_frames_multiple_queries(
+        #             queries, folder_path, num_frames)
+        #         # Store the frames in the global cache
+        #         cache_query[cache_query_key] = (suggestions)
 
-            # Load the frames from the cache
-            top_frames, list_frames = cache_query[cache_query_key]
-            # Frame view logic
-            images = []
-            for sim, video_name, index in top_frames:
-                frame = list_frames[video_name][index]
-                file_name = frame['file_name']
-                frame_idx = frame['frame_idx']
-                timestamp = frame['timestamp']
-                minute = int(float(timestamp)) // 60
-                second = int(float(timestamp)) % 60
-                cache_frame_key = f"{video_name}_{file_name}"
-                if cache_frame_key not in cache_frame:
-                    if len(cache_frame) >= max_cache_frame_size:
-                        # Remove the oldest cache entry
-                        oldest_key = next(iter(cache_frame))
-                        del cache_frame[oldest_key]
-                    # Load the image
-                    img = Image.open(os.path.join(
-                        folder_path, 'keyframes', video_name, file_name))
-                    # Convert image to base64
-                    buffered = io.BytesIO()
-                    img.save(buffered, format="JPEG")
-                    img_str = base64.b64encode(
-                        buffered.getvalue()).decode("utf-8")
-                    cache_frame[cache_frame_key] = img_str
-                else:
-                    img_str = cache_frame[cache_frame_key]
-                images.append(
-                    (img_str, video_name, frame_idx, sim, minute, second))
+        #     # Load the frames from the cache
+        #     suggestions = cache_query[cache_query_key]
+        #     # Frame view logic
+        #     images = []
+        #     for suggestion in suggestions:
+        #         frames = suggestion['frames']
+        #         frame = find_best_frame(frames)
+        #         file_name = frame[5]
+        #         frame_idx = frame[1]
+        #         timestamp = frame[2]
+        #         sim = frame[3]
+        #         minute = int(float(timestamp)) // 60
+        #         second = int(float(timestamp)) % 60
+        #         cache_frame_key = f"{video_name}_{file_name}"
+        #         if cache_frame_key not in cache_frame:
+        #             if len(cache_frame) >= max_cache_frame_size:
+        #                 # Remove the oldest cache entry
+        #                 oldest_key = next(iter(cache_frame))
+        #                 del cache_frame[oldest_key]
+        #             # Load the image
+        #             img = Image.open(os.path.join(
+        #                 folder_path, 'keyframes', video_name, file_name))
+        #             # Convert image to base64
+        #             buffered = io.BytesIO()
+        #             img.save(buffered, format="JPEG")
+        #             img_str = base64.b64encode(
+        #                 buffered.getvalue()).decode("utf-8")
+        #             cache_frame[cache_frame_key] = img_str
+        #         else:
+        #             img_str = cache_frame[cache_frame_key]
+        #         images.append(
+        #             (img_str, video_name, frame_idx, sim, minute, second))
 
-            return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
+        #     return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
 
-        elif view_mode == 'clip':
-            # Clip view logic
-            queries = query.split(';')
-            suggestions_inputs = []
-            for query in queries:
-                top_frames, list_frames = retrieve_frames(
-                    query, folder_path, num_frames)
-                suggestions_input = convert_to_suggestion_input(
-                    top_frames, list_frames)
-                suggestions_inputs.append(suggestions_input)
+        # elif view_mode == 'clip':
+        # Clip view logic
+        queries = request.form.getlist('query')
 
-            # Create suggestions for clips
-            suggestions = create_suggestion(suggestions_inputs)
+        # Create suggestions for clips
+        suggestions = retrieve_frames_multiple_queries(
+            queries, folder_path, num_frames)
 
-            # Load the video_id.txt file to map video names to YouTube URLs
-            video_urls = {}
-            with open('video_id.txt', 'r') as f:
-                for line in f:
-                    video_name, video_url = line.strip().split(' ')
-                    video_urls[video_name] = video_url
+        for suggestion in suggestions:
+            frames = suggestion['frames']
+            frame = find_best_frame(frames)
+            file_name = frame[5]
+            video_name = frame[0]
 
-            return render_template(
-                'index.html',
-                suggestions=suggestions,
-                video_urls=video_urls
-            )
+            # Load the image
+            img = Image.open(os.path.join(
+                folder_path, 'keyframes', video_name, file_name))
+
+            # Resize the image to a lower quality version
+            # Set the desired size for the low-quality image
+            # max_size = (100, 100)
+            # img.thumbnail(max_size)
+
+            # Convert image to base64
+            buffered = io.BytesIO()
+            # Set the quality parameter to reduce quality
+            img.save(buffered, format="JPEG", quality=20)
+            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+            suggestion['img_str'] = img_str
+
+        # Load the video_id.txt file to map video names to YouTube URLs
+        video_urls = {}
+        with open('video_id.txt', 'r') as f:
+            for line in f:
+                video_name, video_url = line.strip().split(' ')
+                video_urls[video_name] = video_url
+
+        return render_template(
+            'index.html',
+            suggestions=suggestions,
+            video_urls=video_urls,
+            num_frames=num_frames
+        )
 
     return render_template('index.html')
 
 # New route to handle the extraction of the current order and save to CSV
+
+
+def find_best_frame(frames):
+    # Find the frame with the highest similarity score
+    best_frame = max(frames, key=lambda x: x[3])
+    return best_frame
 
 
 @app.route('/download_csv', methods=['POST'])
