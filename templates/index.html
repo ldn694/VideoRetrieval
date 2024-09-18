@@ -9,6 +9,9 @@
 
     <!-- Latest compiled JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/regular.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/solid.css') }}" rel="stylesheet" />
     <!-- <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,14 +23,12 @@
     </style> -->
     <style>
         .input-section {
-            flex: 2;
-            padding: 20px;
+            padding: 10px;
             background-color: #f4f4f4;
             border-right: 1px solid #ccc;
         }
         .right-section {
-            flex: 8;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
         }
@@ -101,19 +102,32 @@
             margin: 0;
             padding: 0;
         }
+        .textarea-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .textarea-container button {
+            height: 100%
+        }
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <!-- Left section for query input -->
         <div class="row">
-            <div class="col-md-6 input-section">
+            <div class="col-md-3 input-section">
                 <h1>Retrieve Video Frames</h1>
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="query" class="form-label">Text Query:</label>
-                        <input type="text" id="query" name="query" rows="5"
-                            class="form-control" placeholder="Your query" required>
+                <form method="POST">    
+                    <div id="query-container">
+                        <label for="query" class="form-label">Queries:</label>
+                        <div class="textarea-container input-group mb-2" draggable="true" ondragstart="dragQuery(event)" ondragover="onDragOverQuery(event)" ondrop="dropQuery(event)" ondragend="dragEndQuery(event)">
+                            <textarea type="text" rows="1" name="query[]" class="form-control" placeholder="Your query" required></textarea>
+                            <button type="button" class="btn btn-danger" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-secondary btn-block" onclick="addTextarea()"><i class="fa-solid fa-plus"></i></button>
                     </div>
 
                     <div class="mb-3">
@@ -132,7 +146,7 @@
             </div>
             
             <!-- Right section for frames and suggestions display -->
-            <div class="col-md-6 right-section">
+            <div class="col-md-8 right-section">
                 <!-- CSV Download Section -->
                 <div class="csv-section row">
                     <div class="col">
@@ -147,7 +161,7 @@
                 <div class="frames-section" id="framesSection">
                     {% if images %}
                         {% for img_str, video_name, frame_idx, sim, minute, second in images %}
-                            <div class="card col-md-2" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="card col-md-2" draggable="true" ondragstart="dragFrmae(event)" ondrop="dropFrame(event)" ondragover="allowDropFrame(event)">
                                 <img class="card-img-top" src="data:image/jpeg;base64,{{ img_str }}" alt="data:image/jpeg;base64,{{ img_str }}" onclick="openModal('{{ img_str }}')">
                                 <div class="card-body">
                                     <p class="card-title">{{ video_name }}</p>
@@ -197,26 +211,73 @@
     <script>
         // Drag-and-Drop Logic
         let dragged;
+        let num_queries = 1;
 
-        function allowDrop(event) {
+        function addTextarea() {
+            const queryContainer = document.getElementById('query-container');
+            const newTextarea = document.createElement('div');
+            newTextarea.classList.add('textarea-container', 'input-group', 'mb-2');
+            newTextarea.draggable = true;
+            newTextarea.ondragstart = dragQuery;
+            newTextarea.ondragover = onDragOverQuery;
+            newTextarea.ondrop = dropQuery;
+            newTextarea.ondragend = dragEndQuery;
+            newTextarea.innerHTML = `
+                <textarea type="text" rows="1" name="query[]" class="form-control" placeholder="Your query" required></textarea>
+                <button type="button" class="btn btn-danger" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+            `;
+            queryContainer.appendChild(newTextarea);
+            num_queries++;
+        }
+
+        function deleteTextarea(button) {
+            // remove textarea container
+            button.closest('.textarea-container').remove();
+            num_queries--;
+        }
+
+        function onDragOverQuery(event) {
             event.preventDefault();
         }
 
-        function drag(event) {
-            dragged = event.target.closest(".card");
+        function dragQuery(event) {
+            dragged = event.target.closest(".textarea-container");
             dragged.classList.add("dragging");
-            dragged.classList.add("bg-primary text-white");
         }
 
-        function drop(event) {
+        function dropQuery(event) {
+            event.preventDefault();
+            const target = event.target.closest(".textarea-container");
+            if (dragged !== target) {
+                const queryContainer = document.getElementById('query-container');
+                queryContainer.insertBefore(dragged, target);
+            }
+        }
+
+        function dragEndQuery(event) {
+            if (dragged) {
+                dragged.classList.remove("dragging");
+            }
+        }
+
+        function allowDropFrame(event) {
+            event.preventDefault();
+            dragged.classList.remove("dragging");
+        }
+
+        function dragFrame(event) {
+            dragged = event.target.closest(".card");
+            dragged.classList.add("dragging", "bg-primary", "text-white");
+        }
+
+        function dropFrame(event) {
             event.preventDefault();
             const target = event.target.closest(".card");
             if (dragged !== target) {
                 const framesSection = document.getElementById('framesSection');
                 framesSection.insertBefore(dragged, target);
             }
-            dragged.classList.remove("dragging");
-            dragged.classList.remove("bg-primary text-white");
+            dragged.classList.remove("dragging", "bg-primary", "text-white");
         }
 
         // Modal Logic
