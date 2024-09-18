@@ -176,7 +176,8 @@
                                 </div>
                                 <img src="data:image/jpeg;base64,{{ suggestion.img_str }}" onclick="openModal('{{ suggestion.img_str }}')">
                                 <div class="card-body suggestion-info">
-                                    <p>Max Similarity: {{ suggestion.max_sim }}</p>
+                                    <p>{{ suggestion.max_sim }} (max sim)</p>
+                                    <p class="main-frame">Best frame: {{ suggestion.main_frame }}</p>
 
                                     <!-- YouTube Link -->
                                     <a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
@@ -315,8 +316,8 @@
             const fileName = document.getElementById('file_name').value;
 
             frames.forEach(frame => {
-                const video_name = frame.querySelector('p').textContent.split(' - ')[0];
-                const frame_idx = frame.querySelector('p').textContent.split('Frame ')[1].split(' ')[0];
+                const video_name = frame.querySelector('h5').textContent;
+                const frame_idx = frame.querySelector('.main-frame').textContent.split(' ')[2];
                 order.push({ video_name, frame_idx });
             });
 

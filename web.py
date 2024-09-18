@@ -109,6 +109,7 @@ def index():
         suggestions = retrieve_frames_multiple_queries(
             queries, folder_path, num_frames)
 
+        # TODO: Load all the keyframes for the suggestions
         for suggestion in suggestions:
             frames = suggestion['frames']
             frame = find_best_frame(frames)
@@ -121,15 +122,16 @@ def index():
 
             # Resize the image to a lower quality version
             # Set the desired size for the low-quality image
-            # max_size = (100, 100)
-            # img.thumbnail(max_size)
+            max_size = (360, 240)
+            img.thumbnail(max_size)
 
             # Convert image to base64
             buffered = io.BytesIO()
             # Set the quality parameter to reduce quality
-            img.save(buffered, format="JPEG", quality=20)
+            img.save(buffered, format="JPEG", quality=75)
             img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
             suggestion['img_str'] = img_str
+            suggestion['main_frame'] = frame[1]
 
         # Load the video_id.txt file to map video names to YouTube URLs
         video_urls = {}
