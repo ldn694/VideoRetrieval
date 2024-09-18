@@ -117,7 +117,7 @@
         .delete-query {
             padding-left: 5px;
             padding-right: 5px;
-            z-index: 1;
+            z-index: 0 !important;
         }
     </style>
 </head>
@@ -309,7 +309,7 @@
 
         // Function to extract the current order and send it to the server
         function extractCSV() {
-            const frames = document.querySelectorAll('.frame');
+            const frames = document.querySelectorAll('.suggestion');
             const order = [];
             const customText = document.getElementById('custom_text').value;
             const fileName = document.getElementById('file_name').value;
