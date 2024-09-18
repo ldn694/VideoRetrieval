@@ -130,13 +130,13 @@
                         <label for="query" class="form-label">Queries:</label>
                         {% if queries %}
                             {% for query in queries %}
-                                <div class="textarea-container input-group mb-2" draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)">
+                                <div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
                                     <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required>{{ query }}</textarea>
                                     <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <div class="textarea-container input-group mb-2" draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)">
+                            <div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
                                 <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
                                 <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
                             </div>
@@ -238,11 +238,11 @@
             const queryContainer = document.getElementById('query-container');
             const newTextarea = document.createElement('div');
             newTextarea.classList.add('textarea-container', 'input-group', 'mb-2');
-            newTextarea.draggable = true;
-            newTextarea.ondragstart = dragQuery;
-            newTextarea.ondragover = onDragOverQuery;
-            newTextarea.ondrop = dropQuery;
-            newTextarea.ondragend = dragEndQuery;
+            // newTextarea.draggable = true;
+            // newTextarea.ondragstart = dragQuery;
+            // newTextarea.ondragover = onDragOverQuery;
+            // newTextarea.ondrop = dropQuery;
+            // newTextarea.ondragend = dragEndQuery;
             newTextarea.innerHTML = `
                 <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
                 <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
