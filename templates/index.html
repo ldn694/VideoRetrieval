@@ -131,12 +131,6 @@
                         <input type="number" id="num_frames" class="form-control" name="num_frames" required>   
                     </div>
                     
-                    <label>View Mode:</label><br>
-                    <input type="radio" id="frame_view" name="view_mode" value="frame" checked>
-                    <label for="frame_view">Frame View</label><br>
-                    <input type="radio" id="clip_view" name="view_mode" value="clip">
-                    <label for="clip_view">Clip View</label><br><br>
-                    
                     <button class="btn btn-primary" type="submit">Submit</button>
                 </form>
             </div>
@@ -156,10 +150,10 @@
                 <!-- Frames Display Section (for frame view mode) -->
 
                 <!-- Suggestions Display Section (for clip view mode) -->
-                <div class="frames-section">
+                <div class="frames-section" id = "framesSection">
                     {% if suggestions %}
                         {% for suggestion in suggestions %}
-                            <div class="suggestion card col-md-3">
+                            <div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)">
                                 <div class="card-header">
                                     <h5 class="card-title">{{ suggestion.frames[0][0] }}</h5>
                                 </div>
@@ -169,7 +163,7 @@
 
                                     <!-- YouTube Link -->
                                     <a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
-                                    target="_blank" class="card-link">Watch Clip on YouTube</a>
+                                    target="_blank" class="card-link">YouTube Video</a>
                                     
                                     <!-- Frame scores -->
                                     <div class="dropdown">
@@ -256,12 +250,11 @@
 
         function allowDropFrame(event) {
             event.preventDefault();
-            dragged.classList.remove("dragging");
         }
 
         function dragFrame(event) {
             dragged = event.target.closest(".card");
-            dragged.classList.add("dragging", "bg-primary", "text-white");
+            dragged.classList.add("dragging");
         }
 
         function dropFrame(event) {
@@ -271,7 +264,7 @@
                 const framesSection = document.getElementById('framesSection');
                 framesSection.insertBefore(dragged, target);
             }
-            dragged.classList.remove("dragging", "bg-primary", "text-white");
+            dragged.classList.remove("dragging");
         }
 
         // Modal Logic

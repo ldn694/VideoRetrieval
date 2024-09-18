@@ -46,7 +46,7 @@ def index():
         query = '#'.join(queries)
         folder_path = settings.DATA_PATH
         num_frames = int(request.form['num_frames'])
-        view_mode = request.form['view_mode']
+        # view_mode = request.form['view_mode']
 
         # if view_mode == 'frame':
         #     suggestions = retrieve_frames_multiple_queries(
