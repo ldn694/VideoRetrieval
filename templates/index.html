@@ -22,6 +22,11 @@
         }
     </style> -->
     <style>
+        .container-fluid {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
         .input-section {
             padding: 10px;
             background-color: #f4f4f4;
@@ -95,16 +100,24 @@
             padding: 0;
         }
         .textarea-container {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             margin-bottom: 10px;
         }
-        .textarea-container button {
-            height: 100%
+        .textarea-container > textarea {
+            resize: none;
+        }
+        .textarea-container > button {
+            height: 62px;
         }
         .dropdown-menu {
             position: absolute;
             z-index: 1000; /* Ensure the dropdown appears above other elements */
+        }
+        .delete-query {
+            padding-left: 5px;
+            padding-right: 5px;
+            z-index: 1;
         }
     </style>
 </head>
@@ -114,12 +127,12 @@
         <div class="row" style="height:100%">
             <div class="col-md-2 input-section">
                 <h1>Retrieve Video Frames</h1>
-                <form method="POST">    
+                <form method="POST" action="/" onsubmit="showSpinner()">    
                     <div id="query-container">
                         <label for="query" class="form-label">Queries:</label>
                         <div class="textarea-container input-group mb-2" draggable="true" ondragstart="dragQuery(event)" ondragover="onDragOverQuery(event)" ondrop="dropQuery(event)" ondragend="dragEndQuery(event)">
-                            <textarea type="text" rows="1" name="query" class="form-control" placeholder="Your query" required></textarea>
-                            <button type="button" class="btn btn-danger" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                            <textarea type="text" rows="2" name="query" class="form-control" placeholder="Your query" required></textarea>
+                            <button type="button" class="btn btn-danger delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
                         </div>
                     </div>
                     <div class="d-grid">
@@ -131,7 +144,7 @@
                         <input type="number" id="num_frames" class="form-control" name="num_frames" value="100" required>   
                     </div>
                     
-                    <button class="btn btn-primary" type="submit">Submit</button>
+                    <button class="btn btn-primary" type="submit" id="submit-button">Submit</button>
                 </form>
             </div>
             
@@ -201,6 +214,15 @@
         let dragged;
         let num_queries = 1;
 
+        function showSpinner() {
+            const submitButton = document.getElementById('submit-button');
+            submitButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Submitting...
+            `;
+            submitButton.disabled = true;
+        }
+
         function addTextarea() {
             const queryContainer = document.getElementById('query-container');
             const newTextarea = document.createElement('div');
@@ -211,8 +233,8 @@
             newTextarea.ondrop = dropQuery;
             newTextarea.ondragend = dragEndQuery;
             newTextarea.innerHTML = `
-                <textarea type="text" rows="1" name="query" class="form-control" placeholder="Your query" required></textarea>
-                <button type="button" class="btn btn-danger" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                <textarea type="text" rows="2" name="query" class="form-control" placeholder="Your query" required></textarea>
+                <button type="button" class="btn btn-danger delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
             `;
             queryContainer.appendChild(newTextarea);
             num_queries++;
