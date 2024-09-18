@@ -163,8 +163,8 @@ def download_csv():
     custom_text = request.form['custom_text']  # Receive custom text
 
     # Create a CSV file
-    csv_filename = 'query_answer.csv'
-    csv_filepath = os.path.join(os.getcwd(), csv_filename)
+    csv_filename = request.form['file_name']
+    csv_filepath = os.path.join('downloads', csv_filename)
 
     with open(csv_filepath, mode='w', newline='') as file:
         writer = csv.writer(file)

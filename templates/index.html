@@ -146,19 +146,23 @@
                     
                     <button class="btn btn-primary" type="submit" id="submit-button">Submit</button>
                 </form>
+                <hr>
+                <!-- CSV Download Section -->
+                <div class="mb-3">
+                    <label for="custom_text" class="form-label">Answer (for QA):</label>
+                    <input class="form-control" type="text" id="custom_text" placeholder="Your answer">
+                </div>  
+                <div class="mb-3">
+                    <label for="custom_text" class="form-label">File name:</label>
+                    <input class="form-control" type="text" id="file_name" value="query-p1-kis.csv">
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary" onclick="extractCSV()">Download CSV</button>
+                </div>
             </div>
             
             <!-- Right section for frames and suggestions display -->
             <div class="col-md-10 right-section">
-                <!-- CSV Download Section -->
-                <div class="csv-section row">
-                    <div class="col">
-                        <input class="form-control" type="text" id="custom_text" placeholder="Answer (for QA)">
-                    </div>  
-                    <div class="col">
-                        <button class="btn btn-primary" onclick="extractCSV()">Download CSV</button>
-                    </div>
-                </div>
                 
                 <!-- Frames Display Section (for frame view mode) -->
 
@@ -308,6 +312,7 @@
             const frames = document.querySelectorAll('.frame');
             const order = [];
             const customText = document.getElementById('custom_text').value;
+            const fileName = document.getElementById('file_name').value;
 
             frames.forEach(frame => {
                 const video_name = frame.querySelector('p').textContent.split(' - ')[0];
@@ -319,6 +324,7 @@
             const formData = new FormData();
             formData.append('order', JSON.stringify(order));
             formData.append('custom_text', customText); // Pass the custom text to the backend
+            formData.append('file_name', fileName); // Pass the file name to the backend
 
             fetch('/download_csv', {
                 method: 'POST',
@@ -330,7 +336,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'query_answer.csv';
+                a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
