@@ -107,14 +107,12 @@
         .textarea-container > textarea {
             resize: none;
         }
-        .textarea-container > button {
-            height: 62px;
-        }
         .dropdown-menu {
             position: absolute;
             z-index: 1000; /* Ensure the dropdown appears above other elements */
         }
         .delete-query {
+            height: 62px;
             padding-left: 5px;
             padding-right: 5px;
             z-index: 0 !important;
@@ -130,10 +128,19 @@
                 <form method="POST" action="/" onsubmit="showSpinner()">    
                     <div id="query-container">
                         <label for="query" class="form-label">Queries:</label>
-                        <div class="textarea-container input-group mb-2" draggable="true" ondragstart="dragQuery(event)" ondragover="onDragOverQuery(event)" ondrop="dropQuery(event)" ondragend="dragEndQuery(event)">
-                            <textarea type="text" rows="2" name="query" class="form-control" placeholder="Your query" required></textarea>
-                            <button type="button" class="btn btn-danger delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
-                        </div>
+                        {% if queries %}
+                            {% for query in queries %}
+                                <div class="textarea-container input-group mb-2" draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)">
+                                    <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required>{{ query }}</textarea>
+                                    <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="textarea-container input-group mb-2" draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)">
+                                <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
+                                <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="d-grid">
                         <button type="button" class="btn btn-secondary btn-block" onclick="addTextarea()"><i class="fa-solid fa-plus"></i></button>
@@ -217,7 +224,6 @@
     <script>
         // Drag-and-Drop Logic
         let dragged;
-        let num_queries = 1;
 
         function showSpinner() {
             const submitButton = document.getElementById('submit-button');
@@ -238,17 +244,15 @@
             newTextarea.ondrop = dropQuery;
             newTextarea.ondragend = dragEndQuery;
             newTextarea.innerHTML = `
-                <textarea type="text" rows="2" name="query" class="form-control" placeholder="Your query" required></textarea>
-                <button type="button" class="btn btn-danger delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
+                <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
             `;
             queryContainer.appendChild(newTextarea);
-            num_queries++;
         }
 
         function deleteTextarea(button) {
             // remove textarea container
             button.closest('.textarea-container').remove();
-            num_queries--;
         }
 
         function onDragOverQuery(event) {

@@ -42,10 +42,12 @@ def index():
     if request.method == 'POST':
         # Get input values
         # get all queries from the form
-        queries = request.form.getlist('query')
-        query = '#'.join(queries)
+        queries = request.form.getlist('query[]')
         folder_path = settings.DATA_PATH
         num_frames = int(request.form['num_frames'])
+
+        # Process the form data as needed
+        print(f"Queries: {queries}, Number of Frames: {num_frames}")
         # view_mode = request.form['view_mode']
 
         # if view_mode == 'frame':
@@ -103,7 +105,6 @@ def index():
 
         # elif view_mode == 'clip':
         # Clip view logic
-        queries = request.form.getlist('query')
 
         # Create suggestions for clips
         suggestions = retrieve_frames_multiple_queries(
@@ -142,6 +143,7 @@ def index():
 
         return render_template(
             'index.html',
+            queries=queries,
             suggestions=suggestions,
             video_urls=video_urls,
             num_frames=num_frames
