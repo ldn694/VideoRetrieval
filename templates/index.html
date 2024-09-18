@@ -13,10 +13,12 @@
         body {
             font-family: Arial, sans-serif;
         }
-        .container {
-            display: flex;
-            height: 100vh;
+        img {
+            width: 100%;
+            height: auto;
         }
+    </style> -->
+    <style>
         .input-section {
             flex: 2;
             padding: 20px;
@@ -40,17 +42,8 @@
             flex-grow: 1;
             overflow-y: auto;
         }
-        .frame {
-            margin: 10px;
-            width: calc(20%);
-            cursor: pointer;
-            border: 1px solid #ccc;
-            padding: 10px;
-            position: relative;
-        }
-        img {
-            width: 100%;
-            height: auto;
+        .frames-section > .card {
+            margin: 5px;
         }
         /* Modal styles */
         .modal {
@@ -79,6 +72,10 @@
             font-size: 35px;
             font-weight: bold;
         }
+        img {
+            width: 100%;
+            height: auto;
+        }
         .close:hover,
         .close:focus {
             color: #bbb;
@@ -95,72 +92,98 @@
             padding: 10px;
             background-color: #fafafa;
         }
-    </style> -->
+        .container-fluid {
+            max-height: 100vh; /* Set the maximum height */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <!-- Left section for query input -->
-        <div class="input-section">
-            <h1>Retrieve Video Frames</h1>
-            <form method="POST">
-                <label for="query">Text Query:</label>
-                <input type="text" id="query" name="query" required><br><br>
-                
-                <label for="num_frames">Number of Frames:</label>
-                <input type="number" id="num_frames" name="num_frames" required><br><br>
-                
-                <label>View Mode:</label><br>
-                <input type="radio" id="frame_view" name="view_mode" value="frame" checked>
-                <label for="frame_view">Frame View</label><br>
-                <input type="radio" id="clip_view" name="view_mode" value="clip">
-                <label for="clip_view">Clip View</label><br><br>
-                
-                <button type="submit">Submit</button>
-            </form>
-        </div>
-        
-        <!-- Right section for frames and suggestions display -->
-        <div class="right-section">
-            <!-- CSV Download Section -->
-            <div class="csv-section">
-                <input type="text" id="custom_text" placeholder="Custom Text (optional)">
-                <button onclick="extractCSV()">Download CSV</button>
+        <div class="row">
+            <div class="col-md-6 input-section">
+                <h1>Retrieve Video Frames</h1>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="query" class="form-label">Text Query:</label>
+                        <input type="text" id="query" name="query" rows="5"
+                            class="form-control" placeholder="Your query" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="num_frames" class="form-label">Number of Frames:</label>
+                        <input type="number" id="num_frames" class="form-control" name="num_frames" required>   
+                    </div>
+                    
+                    <label>View Mode:</label><br>
+                    <input type="radio" id="frame_view" name="view_mode" value="frame" checked>
+                    <label for="frame_view">Frame View</label><br>
+                    <input type="radio" id="clip_view" name="view_mode" value="clip">
+                    <label for="clip_view">Clip View</label><br><br>
+                    
+                    <button class="btn btn-primary" type="submit">Submit</button>
+                </form>
             </div>
             
-            <!-- Frames Display Section (for frame view mode) -->
-            <div class="frames-section" id="framesSection">
-                {% if images %}
-                    {% for img_str, video_name, frame_idx, sim, minute, second in images %}
-                        <div class="frame" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">
-                            <img src="data:image/jpeg;base64,{{ img_str }}" alt="Frame" onclick="openModal('{{ img_str }}')">
-                            <p>{{ video_name }} - Frame {{ frame_idx }} {{ sim }} {{ minute }}:{{ second }}</p>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
+            <!-- Right section for frames and suggestions display -->
+            <div class="col-md-6 right-section">
+                <!-- CSV Download Section -->
+                <div class="csv-section row">
+                    <div class="col">
+                        <input class="form-control" type="text" id="custom_text" placeholder="Answer (for QA)">
+                    </div>  
+                    <div class="col">
+                        <button class="btn btn-primary" onclick="extractCSV()">Download CSV</button>
+                    </div>
+                </div>
+                
+                <!-- Frames Display Section (for frame view mode) -->
+                <div class="frames-section" id="framesSection">
+                    {% if images %}
+                        {% for img_str, video_name, frame_idx, sim, minute, second in images %}
+                            <div class="card col-md-2" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">
+                                <img class="card-img-top" src="data:image/jpeg;base64,{{ img_str }}" alt="data:image/jpeg;base64,{{ img_str }}" onclick="openModal('{{ img_str }}')">
+                                <div class="card-body">
+                                    <p class="card-title">{{ video_name }}</p>
+                                    <p class="card-text small"> 
+                                        <b>Frame</b> {{ frame_idx }};
+                                        <b>Sim</b> {{ sim }}; 
+                                        <b>Position</b> {{ minute }}:{{ second }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
 
-            <!-- Suggestions Display Section (for clip view mode) -->
-            <div class="frames-section">
-                {% if suggestions %}
-                    {% for suggestion in suggestions %}
-                        <div class="suggestion">
-                            <h3>Video: {{ suggestion.frames[0][0] }} (Num Unique: {{ suggestion.num_unique }})</h3>
-                            <p>Max Similarity: {{ suggestion.max_sim }}</p>
-                            <p>Frame Indices: {{ suggestion.frames | map(attribute=1) | join(', ') }}</p>
+                <!-- Suggestions Display Section (for clip view mode) -->
+                <div class="frames-section">
+                    {% if suggestions %}
+                        {% for suggestion in suggestions %}
+                            <div class="suggestion">
+                                <h3>Video: {{ suggestion.frames[0][0] }} (Num Unique: {{ suggestion.num_unique }})</h3>
+                                <p>Max Similarity: {{ suggestion.max_sim }}</p>
+                                <p>Frame Indices: {{ suggestion.frames | map(attribute=1) | join(', ') }}</p>
 
-                            <!-- YouTube Link -->
-                            <a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
-                               target="_blank">Watch Clip on YouTube</a>
-                            
-                            <!-- Frame scores -->
-                            <ul>
-                                {% for frame in suggestion.frames %}
-                                    <li>Frame {{ frame[1] }}: Score {{ frame[3] }} (Timestamp: {{ frame[2] }}s, Query ID: {{ frame[4] }})</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+                                <!-- YouTube Link -->
+                                <a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
+                                target="_blank">Watch Clip on YouTube</a>
+                                
+                                <!-- Frame scores -->
+                                <ul>
+                                    {% for frame in suggestion.frames %}
+                                        <li>Frame {{ frame[1] }}: Score {{ frame[3] }} (Timestamp: {{ frame[2] }}s, Query ID: {{ frame[4] }})</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -180,18 +203,20 @@
         }
 
         function drag(event) {
-            dragged = event.target.closest(".frame");
+            dragged = event.target.closest(".card");
             dragged.classList.add("dragging");
+            dragged.classList.add("bg-primary text-white");
         }
 
         function drop(event) {
             event.preventDefault();
-            const target = event.target.closest(".frame");
+            const target = event.target.closest(".card");
             if (dragged !== target) {
                 const framesSection = document.getElementById('framesSection');
                 framesSection.insertBefore(dragged, target);
             }
             dragged.classList.remove("dragging");
+            dragged.classList.remove("bg-primary text-white");
         }
 
         // Modal Logic
