@@ -228,7 +228,6 @@ def add_frame():
     second = num_seconds % 60
 
     # Make the url start at num_seconds
-
     watch_url = f"{watch_url}&t={num_seconds}s"
 
     # Create a suggestion object
@@ -239,11 +238,6 @@ def add_frame():
         "second": second,
         "watch_url": watch_url
     }
-
-
-
-
-
     # Optionally, store this new frame in your current frame list or cache
     # Example: cache_frame_key = f"{video_name}_{frame_idx}"
     # cache_frame[cache_frame_key] = img

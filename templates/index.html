@@ -145,9 +145,10 @@
         <div class="row" style="height:100%">
             <div class="col-md-3 input-section">
                 <h3>Retrieve Video Frames</h3>
-                <form method="POST" action="/submit" onsubmit="showSpinner()">    
+                <hr>
+                <h5 data-bs-toggle="collapse" href="#InputSection" aria-controls="InputSection" role="button"> Input</h5>  
+                <form method="POST" action="/submit" onsubmit="showSpinner()" id="InputSection" class="collapse show">
                     <div id="query-container">
-                        <label for="query" class="form-label">Queries:</label>
                         {% if queries %}
                             {% for query_id, query_text in queries %}
                                 <div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
@@ -167,20 +168,23 @@
                     <div class="d-grid mb-3">
                         <button type="button" class="btn btn-secondary btn-block" onclick="addTextarea()"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <div class="mb-3">
-                        <label for="num_frames" class="form-label">Number of Frames:</label>
+                    <div class="input-group mb-3">
+                        <label for="num_frames" class="input-group-text">Limit:</label>
                         <input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
                     </div>
                     
                     <button class="btn btn-primary" type="submit" id="submit-button">Submit</button>
-                    <hr>
+                </form>
+                <hr>
+                <form method="POST">
                     <!-- CSV Download Section -->
-                    <div class="mb-3">
-                        <label for="custom_text" class="form-label">Answer (for QA):</label>
-                        <input class="form-control" type="text" name="custom_text" id="custom_text" placeholder="Your answer">
+                    <h5>Download</h5>
+                    <div class="input-group mb-3">
+                        <label for="custom_text" class="input-group-text" style="width:5em">Answer:</label>
+                        <input class="form-control" type="text" name="custom_text" id="custom_text" placeholder="Answer for QA">
                     </div>  
-                    <div class="mb-3">
-                        <label for="file_name" class="form-label">File name:</label>
+                    <div class="input-group mb-3">
+                        <label for="file_name" class="input-group-text" style="width:5em">File:</label>
                         <input class="form-control" type="text" name="file_name" id="file_name" value="{{ csv_filename }}">
                     </div>
                     <div class="mb-3">
@@ -188,15 +192,16 @@
                     </div>
                 </form>
                 <hr>
+                <h5>Frames control</h5>
                 <div class="mb-3">
-                    <p class="retrieved_frames">Total: {{ suggestions|length }}</p>
+                    <p class="retrieved_frames">Total frames: {{ suggestions|length }}</p>
                 </div>
-                <div class="mb-3">
-                    <label for="video_name" class="form-label">Video Name:</label>
+                <div class="input-group mb-3">
+                    <label for="video_name" class="input-group-text" style="width:5em">Video:</label>
                     <input type="text" id="video_name" name="video_name" class="form-control" required>
                 </div>
-                <div class="mb-3">
-                    <label for="frame_idx" class="form-label">Frame Index:</label>
+                <div class="input-group mb-3">
+                    <label for="frame_idx" class="input-group-text" style="width:5em">Frame:</label>
                     <input type="number" id="frame_idx" name="frame_idx" class="form-control" required>
                 </div>
                 <div class="mb-3">
@@ -277,7 +282,7 @@
             const framesSection = document.getElementById('framesSection');
             const totalFrames = framesSection.getElementsByClassName('card').length;
             const retrievedFramesElement = document.querySelector('.retrieved_frames');
-            retrievedFramesElement.textContent = `Total: ${totalFrames}`;
+            retrievedFramesElement.textContent = `Total frames: ${totalFrames}`;
         }
 
         function showSpinner() {
