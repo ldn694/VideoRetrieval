@@ -167,7 +167,7 @@ def create_suggestion(retrieved_frames=[]):
 
 def retrieve_frames_multiple_queries(queries, folder_path, num_frames):
     suggestions_inputs = []
-    for query in queries:
+    for id, query in queries:
         top_frames, list_frames = retrieve_frames(
             query, folder_path, num_frames)
         suggestions_input = convert_to_suggestion_input(

@@ -50,7 +50,8 @@ def index():
 def submit():
     # Get input values
     # get all queries from the form
-    queries = request.form.getlist('query[]')
+    queries = [(i, query) for i, query in enumerate(
+        request.form.getlist('query[]'), start=0)]
     folder_path = settings.DATA_PATH
     num_frames = int(request.form.get('num_frames'))
     csv_filename = request.form.get('file_name', 'query-p1-1-kis.csv')

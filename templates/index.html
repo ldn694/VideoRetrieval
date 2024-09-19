@@ -100,22 +100,32 @@
             padding: 0;
         }
         .textarea-container {
+            height: 4em;
             display: inline-flex;
             align-items: center;
             margin-bottom: 10px;
         }
         .textarea-container > textarea {
             resize: none;
+            line-height: 1.2em; /* Set the line height */
+            height: 4em; /* Set the height */
         }
         .dropdown-menu {
             position: absolute;
             z-index: 1000; /* Ensure the dropdown appears above other elements */
         }
         .delete-query {
-            height: 62px;
+            height: 100%;
             padding-left: 5px;
             padding-right: 5px;
+            text-align: center;
             z-index: 0 !important;
+        }
+        .textarea-container > .input-group-text {
+            height: 100%;
+            padding-left: 5px;
+            padding-right: 5px;
+            text-align: center;
         }
     </style>
 </head>
@@ -123,20 +133,22 @@
     <div class="container-fluid">
         <!-- Left section for query input -->
         <div class="row" style="height:100%">
-            <div class="col-md-2 input-section">
+            <div class="col-md-3 input-section">
                 <h3>Retrieve Video Frames</h3>
                 <form method="POST" action="/submit" onsubmit="showSpinner()">    
                     <div id="query-container">
                         <label for="query" class="form-label">Queries:</label>
                         {% if queries %}
-                            {% for query in queries %}
+                            {% for query_id, query_text in queries %}
                                 <div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
+                                    <span class="input-group-text">{{ query_id }}</span>
                                     <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required>{{ query }}</textarea>
                                     <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
                                 </div>
                             {% endfor %}
                         {% else %}
                             <div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
+                                <span class="input-group-text">0</span>
                                 <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
                                 <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
                             </div>
@@ -172,7 +184,7 @@
             </div>
             
             <!-- Right section for frames and suggestions display -->
-            <div class="col-md-10 right-section">
+            <div class="col-md-9 right-section">
                 
                 <!-- Frames Display Section (for frame view mode) -->
 
@@ -227,6 +239,7 @@
     <script>
         // Drag-and-Drop Logic
         let dragged;
+        let num_queries = 1;
 
         function showSpinner() {
             const submitButton = document.getElementById('submit-button');
@@ -247,15 +260,18 @@
             // newTextarea.ondrop = dropQuery;
             // newTextarea.ondragend = dragEndQuery;
             newTextarea.innerHTML = `
+                <span class="input-group-text">${num_queries}</span>
                 <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
                 <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
             `;
             queryContainer.appendChild(newTextarea);
+            num_queries += 1;
         }
 
         function deleteTextarea(button) {
             // remove textarea container
             button.closest('.textarea-container').remove();
+            num_queries -= 1;
         }
 
         function onDragOverQuery(event) {
