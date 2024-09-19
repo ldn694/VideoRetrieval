@@ -124,26 +124,26 @@ def submit():
     # TODO: Load all the keyframes for the suggestions
     for suggestion in suggestions:
         frames = suggestion['frames']
-        frame = find_best_frame(frames)
-        file_name = frame[5]
-        video_name = frame[0]
+        highest_sim_id = 0
+        for i, frame in enumerate(frames):
+            video_name = frame[0]
+            file_name = frame[5]
+            # Load the image
+            img = Image.open(os.path.join(
+                folder_path, 'keyframes', video_name, file_name))
+            # Convert image to base64
+            buffered = io.BytesIO()
+            img.save(buffered, format="JPEG")
+            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+            # Convert the tuple to a list, modify it, and convert it back to a tuple
+            frame_list = list(frame)
+            # Replace the file name with the base64 image
+            frame_list[5] = img_str
+            frames[i] = tuple(frame_list)
+            if frame[3] > frames[highest_sim_id][3]:
+                highest_sim_id = i
 
-        # Load the image
-        img = Image.open(os.path.join(
-            folder_path, 'keyframes', video_name, file_name))
-
-        # Resize the image to a lower quality version
-        # Set the desired size for the low-quality image
-        max_size = (360, 240)
-        img.thumbnail(max_size)
-
-        # Convert image to base64
-        buffered = io.BytesIO()
-        # Set the quality parameter to reduce quality
-        img.save(buffered, format="JPEG", quality=75)
-        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        suggestion['img_str'] = img_str
-        suggestion['main_frame'] = frame[1]
+        suggestion['main_frame'] = highest_sim_id
 
     # Load the video_id.txt file to map video names to YouTube URLs
     video_urls = {}
