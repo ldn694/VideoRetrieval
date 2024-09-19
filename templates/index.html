@@ -204,9 +204,9 @@
                         {% for suggestion in suggestions %}
                             <div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
                                 <div class="card-header">
-                                    <div class="row card-title align-items-center">
+                                    <div class="row">
                                         <b class="col">{{ suggestion.frames[0][0] }}</b>
-                                        <button type="button" class="col btn-close btn-sm btn-outline-danger" aria-label="Close" onclick="deleteCard(this)"></button>
+                                        <button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
                                     </div>
                                 </div>
                                 <img src="data:image/jpeg;base64,{{ suggestion.img_str }}" onclick="openModal('{{ suggestion.img_str }}')">
