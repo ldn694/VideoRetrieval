@@ -142,10 +142,9 @@
                             </div>
                         {% endif %}
                     </div>
-                    <div class="d-grid">
+                    <div class="d-grid mb-3">
                         <button type="button" class="btn btn-secondary btn-block" onclick="addTextarea()"><i class="fa-solid fa-plus"></i></button>
                     </div>
-
                     <div class="mb-3">
                         <label for="num_frames" class="form-label">Number of Frames:</label>
                         <input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
@@ -181,7 +180,7 @@
                 <div class="frames-section" id = "framesSection">
                     {% if suggestions %}
                         {% for suggestion in suggestions %}
-                            <div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)">
+                            <div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
                                 <div class="card-header">
                                     <h5 class="card-title">{{ suggestion.frames[0][0] }}</h5>
                                 </div>
@@ -290,6 +289,12 @@
         function dragFrame(event) {
             dragged = event.target.closest(".card");
             dragged.classList.add("dragging");
+        }
+
+        function onDragEndFrame(event) {
+            if (dragged) {
+                dragged.classList.remove("dragging");
+            }
         }
 
         function dropFrame(event) {
