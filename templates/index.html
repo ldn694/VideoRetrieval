@@ -191,6 +191,17 @@
                 <div class="mb-3">
                     <p class="retrieved_frames">Total: {{ suggestions|length }}</p>
                 </div>
+                <div class="mb-3">
+                    <label for="video_name" class="form-label">Video Name:</label>
+                    <input type="text" id="video_name" name="video_name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="frame_idx" class="form-label">Frame Index:</label>
+                    <input type="number" id="frame_idx" name="frame_idx" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary" type="button" onclick="addFrame()">Add Frame</button>
+                </div>
             </div>
             
             <!-- Right section for frames and suggestions display -->
@@ -398,6 +409,38 @@
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
+            });
+        }
+
+        function addFrame() {
+            // Get video_name and frame_idx values from input fields
+            const videoName = document.getElementById('video_name').value;
+            const frameIdx = document.getElementById('frame_idx').value;
+
+            // Create a FormData object
+            const formData = new FormData();
+            formData.append('video_name', videoName);
+            formData.append('frame_idx', frameIdx);
+
+            // Send the data to the server using fetch
+            fetch('/add_frame', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response (show a message or update UI)
+                if (data.status === "success") {
+                    alert(data.message + " " + data.suggestion['watch_url']);
+                    // Optionally, update the UI with the new frame
+                    // Chinh o cho nay ne, doc cai suggestion la duoc
+                } else {
+                    alert('Failed to add frame.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the frame.');
             });
         }
     </script>
