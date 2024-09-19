@@ -125,7 +125,7 @@
         <div class="row" style="height:100%">
             <div class="col-md-2 input-section">
                 <h1>Retrieve Video Frames</h1>
-                <form method="POST" action="/" onsubmit="showSpinner()">    
+                <form method="POST" action="/submit" onsubmit="showSpinner()">    
                     <div id="query-container">
                         <label for="query" class="form-label">Queries:</label>
                         {% if queries %}
@@ -148,24 +148,24 @@
 
                     <div class="mb-3">
                         <label for="num_frames" class="form-label">Number of Frames:</label>
-                        <input type="number" id="num_frames" class="form-control" name="num_frames" value="100" required>   
+                        <input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
                     </div>
                     
                     <button class="btn btn-primary" type="submit" id="submit-button">Submit</button>
+                    <hr>
+                    <!-- CSV Download Section -->
+                    <div class="mb-3">
+                        <label for="custom_text" class="form-label">Answer (for QA):</label>
+                        <input class="form-control" type="text" name="custom_text" id="custom_text" placeholder="Your answer">
+                    </div>  
+                    <div class="mb-3">
+                        <label for="file_name" class="form-label">File name:</label>
+                        <input class="form-control" type="text" name="file_name" id="file_name" value="{{ csv_filename }}">
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-primary" onclick="extractCSV()">Download CSV</button>
+                    </div>
                 </form>
-                <hr>
-                <!-- CSV Download Section -->
-                <div class="mb-3">
-                    <label for="custom_text" class="form-label">Answer (for QA):</label>
-                    <input class="form-control" type="text" id="custom_text" placeholder="Your answer">
-                </div>  
-                <div class="mb-3">
-                    <label for="custom_text" class="form-label">File name:</label>
-                    <input class="form-control" type="text" id="file_name" value="query-p1-kis.csv">
-                </div>
-                <div class="mb-3">
-                    <button class="btn btn-primary" onclick="extractCSV()">Download CSV</button>
-                </div>
             </div>
             
             <!-- Right section for frames and suggestions display -->
