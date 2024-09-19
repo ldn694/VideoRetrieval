@@ -127,6 +127,16 @@
             padding-right: 5px;
             text-align: center;
         }
+
+        .no-outline {
+            --bs-btn-border-color: transparent;
+        }
+        .float-end {
+            float: right;
+        }
+        .card-title > .btn-close {
+            margin-left: auto;
+        }
     </style>
 </head>
 <body>
@@ -194,7 +204,10 @@
                         {% for suggestion in suggestions %}
                             <div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
                                 <div class="card-header">
-                                    <h5 class="card-title">{{ suggestion.frames[0][0] }}</h5>
+                                    <div class="row card-title align-items-center">
+                                        <b class="col">{{ suggestion.frames[0][0] }}</b>
+                                        <button type="button" class="col btn-close btn-sm btn-outline-danger" aria-label="Close" onclick="deleteCard(this)"></button>
+                                    </div>
                                 </div>
                                 <img src="data:image/jpeg;base64,{{ suggestion.img_str }}" onclick="openModal('{{ suggestion.img_str }}')">
                                 <div class="card-body suggestion-info">
@@ -240,6 +253,21 @@
         // Drag-and-Drop Logic
         let dragged;
         let num_queries = 1;
+
+        function deleteCard(button) {
+            if (confirm("Are you sure you want to delete this card?")) {
+                const card = button.closest('.card');
+                card.remove();
+                updateRetrievedFramesCount();
+            }
+        }
+
+        function updateRetrievedFramesCount() {
+            const framesSection = document.getElementById('framesSection');
+            const totalFrames = framesSection.getElementsByClassName('card').length;
+            const retrievedFramesElement = document.querySelector('.retrieved_frames');
+            retrievedFramesElement.textContent = `Total: ${totalFrames}`;
+        }
 
         function showSpinner() {
             const submitButton = document.getElementById('submit-button');
