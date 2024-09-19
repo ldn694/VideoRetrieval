@@ -194,6 +194,7 @@ def download_csv():
     # Send the file to the client using 'download_name' instead of 'attachment_filename'
     return send_file(csv_filepath, as_attachment=True, download_name=csv_filename)
 
+
 @app.route('/add_frame', methods=['POST'])
 def add_frame():
     # Extract video_name and frame_idx from the form data
@@ -201,7 +202,8 @@ def add_frame():
     frame_idx = int(request.form.get('frame_idx'))
     folder_path = settings.DATA_PATH
 
-    map_keyframe_file = os.path.join(folder_path, 'map-keyframes', video_name + '.csv', )
+    map_keyframe_file = os.path.join(
+        folder_path, 'map-keyframes', video_name + '.csv', )
     fps = -1
     with open(map_keyframe_file, 'r') as f:
         reader = csv.reader(f)
@@ -209,11 +211,12 @@ def add_frame():
         fps = int(float(keyframes[1][2]))
 
     print(f"FPS: {fps}")
-    
+
     if fps == -1:
         return {"status": "error", "message": f"Could not find FPS for video {video_name}"}
-    
-    media_info_file = os.path.join(folder_path, 'media-info', video_name + '.json')
+
+    media_info_file = os.path.join(
+        folder_path, 'media-info', video_name + '.json')
     watch_url = ''
     with open(media_info_file, 'r', encoding='utf-8') as f:
         media_info = json.load(f)

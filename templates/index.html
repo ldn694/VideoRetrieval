@@ -178,7 +178,7 @@
                 <hr>
                 <!-- CSV Download Section -->
                 <h5 data-bs-toggle="collapse" href="#CSVSection" aria-controls="CSVSection" role="button">Download</h5>
-                <form method="GET" class="collapse show" id="CSVSection">
+                <div class="collapse show" id="CSVSection">
                     <div class="input-group mb-3">
                         <label for="custom_text" class="input-group-text" style="width:5em">Answer:</label>
                         <input class="form-control" type="text" name="custom_text" id="custom_text" placeholder="Answer for QA">
@@ -188,15 +188,15 @@
                         <input class="form-control" type="text" name="file_name" id="file_name" value="{{ csv_filename }}">
                     </div>
                     <div class="mb-3">
-                        <button class="btn btn-primary" onclick="extractCSV()">Download CSV</button>
+                        <button class="btn btn-primary" type="button" onclick="extractCSV()">Download CSV</button>
                     </div>
-                </form>
+                </div>
                 <hr>
                 <h5 data-bs-toggle="collapse" href="#FramesControl" aria-controls="FramesControl" role="button">Frames control</h5>
                 <div class="mb-3">
                     <p class="retrieved_frames">Total frames: {{ suggestions|length }}</p>
                 </div>
-                <form method="POST" id="FramesControl" class="collapse show">
+                <div id="FramesControl" class="collapse show">
                     <div class="input-group mb-3">
                         <label for="video_name" class="input-group-text" style="width:5em">Video:</label>
                         <input type="text" id="video_name" name="video_name" class="form-control" required>
@@ -208,7 +208,7 @@
                     <div class="mb-3">
                         <button class="btn btn-primary" type="button" onclick="addFrame()">Add Frame</button>
                     </div>
-                </form>
+                </div>
             </div>
             
             <!-- Right section for frames and suggestions display -->
@@ -223,7 +223,7 @@
                             <div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
                                 <div class="card-header">
                                     <div class="row">
-                                        <b class="col">{{ suggestion.frames[0][0] }}</b>
+                                        <b class="col video-name">{{ suggestion.frames[0][0] }}</b>
                                         <button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
                                     </div>
                                 </div>
@@ -385,13 +385,14 @@
 
         // Function to extract the current order and send it to the server
         function extractCSV() {
+            console.log('Extracting CSV...');
             const frames = document.querySelectorAll('.suggestion');
             const order = [];
             const customText = document.getElementById('custom_text').value;
             const fileName = document.getElementById('file_name').value;
 
             frames.forEach(frame => {
-                const video_name = frame.querySelector('h5').textContent;
+                const video_name = frame.querySelector('.video-name').textContent;
                 const frame_idx = frame.querySelector('.main-frame').textContent.split(' ')[2];
                 order.push({ video_name, frame_idx });
             });
@@ -401,7 +402,7 @@
             formData.append('order', JSON.stringify(order));
             formData.append('custom_text', customText); // Pass the custom text to the backend
             formData.append('file_name', fileName); // Pass the file name to the backend
-
+            
             fetch('/download_csv', {
                 method: 'POST',
                 body: formData
@@ -457,7 +458,7 @@
                     newCard.innerHTML = `
                         <div class="card-header">
                             <div class="row">
-                                <b class="col">${videoName}</b>
+                                <b class="col video-name">${videoName}</b>
                                 <button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
                             </div>
                         </div>
