@@ -2,4 +2,4 @@ query_answer.csv
 local_settings.py
 __pycache__/
 downloads/*
-!downloads/
+suggestions.json

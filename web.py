@@ -168,6 +168,9 @@ def download_csv():
 
     # Create a CSV file
     csv_filename = request.form['file_name']
+    # if downloads folder does not exist, create it
+    if not os.path.exists('downloads'):
+        os.makedirs('downloads')
     csv_filepath = os.path.join('downloads', csv_filename)
 
     with open(csv_filepath, mode='w', newline='') as file:
