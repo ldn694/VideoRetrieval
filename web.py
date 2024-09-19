@@ -41,7 +41,9 @@ model, _, preprocess = open_clip.create_model_and_transforms(
 def index():
     num_frames = session.get('num_frames', 100)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
-    return render_template('index.html', num_frames=num_frames, csv_filename=csv_filename)
+    return render_template('index.html',
+                           num_frames=num_frames,
+                           csv_filename=csv_filename)
 
 
 @app.route('/submit', methods=['POST'])

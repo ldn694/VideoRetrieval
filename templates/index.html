@@ -124,7 +124,7 @@
         <!-- Left section for query input -->
         <div class="row" style="height:100%">
             <div class="col-md-2 input-section">
-                <h1>Retrieve Video Frames</h1>
+                <h3>Retrieve Video Frames</h3>
                 <form method="POST" action="/submit" onsubmit="showSpinner()">    
                     <div id="query-container">
                         <label for="query" class="form-label">Queries:</label>
@@ -166,6 +166,10 @@
                         <button class="btn btn-primary" onclick="extractCSV()">Download CSV</button>
                     </div>
                 </form>
+                <hr>
+                <div class="mb-3">
+                    <p class="retrieved_frames">Total: {{ suggestions|length }}</p>
+                </div>
             </div>
             
             <!-- Right section for frames and suggestions display -->
