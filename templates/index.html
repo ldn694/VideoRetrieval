@@ -176,9 +176,9 @@
                     <button class="btn btn-primary" type="submit" id="submit-button">Submit</button>
                 </form>
                 <hr>
-                <form method="POST">
-                    <!-- CSV Download Section -->
-                    <h5>Download</h5>
+                <!-- CSV Download Section -->
+                <h5 data-bs-toggle="collapse" href="#CSVSection" aria-controls="CSVSection" role="button">Download</h5>
+                <form method="GET" class="collapse show" id="CSVSection">
                     <div class="input-group mb-3">
                         <label for="custom_text" class="input-group-text" style="width:5em">Answer:</label>
                         <input class="form-control" type="text" name="custom_text" id="custom_text" placeholder="Answer for QA">
@@ -192,21 +192,23 @@
                     </div>
                 </form>
                 <hr>
-                <h5>Frames control</h5>
+                <h5 data-bs-toggle="collapse" href="#FramesControl" aria-controls="FramesControl" role="button">Frames control</h5>
                 <div class="mb-3">
                     <p class="retrieved_frames">Total frames: {{ suggestions|length }}</p>
                 </div>
-                <div class="input-group mb-3">
-                    <label for="video_name" class="input-group-text" style="width:5em">Video:</label>
-                    <input type="text" id="video_name" name="video_name" class="form-control" required>
-                </div>
-                <div class="input-group mb-3">
-                    <label for="frame_idx" class="input-group-text" style="width:5em">Frame:</label>
-                    <input type="number" id="frame_idx" name="frame_idx" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <button class="btn btn-primary" type="button" onclick="addFrame()">Add Frame</button>
-                </div>
+                <form method="POST" id="FramesControl" class="collapse show">
+                    <div class="input-group mb-3">
+                        <label for="video_name" class="input-group-text" style="width:5em">Video:</label>
+                        <input type="text" id="video_name" name="video_name" class="form-control" required>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label for="frame_idx" class="input-group-text" style="width:5em">Frame:</label>
+                        <input type="number" id="frame_idx" name="frame_idx" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-primary" type="button" onclick="addFrame()">Add Frame</button>
+                    </div>
+                </form>
             </div>
             
             <!-- Right section for frames and suggestions display -->
@@ -422,6 +424,17 @@
             const videoName = document.getElementById('video_name').value;
             const frameIdx = document.getElementById('frame_idx').value;
 
+            // Validate inputs
+            if (!videoName || !frameIdx) {
+                alert('Video name and frame index are required.');
+                return;
+            }
+
+            if (isNaN(frameIdx)) {
+                alert('Frame index must be a number.');
+                return;
+            }
+
             // Create a FormData object
             const formData = new FormData();
             formData.append('video_name', videoName);
@@ -436,9 +449,26 @@
             .then(data => {
                 // Handle the response (show a message or update UI)
                 if (data.status === "success") {
+                    // Add the frame to the frames section
+                    const framesSection = document.getElementById('framesSection');
+                    const url = data.suggestion['watch_url']
+                    const newCard = document.createElement('div');
+                    newCard.classList.add('suggestion', 'card', 'col-md-2');
+                    newCard.innerHTML = `
+                        <div class="card-header">
+                            <div class="row">
+                                <b class="col">${videoName}</b>
+                                <button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
+                            </div>
+                        </div>
+                        <div class="card-body suggestion-info">
+                            <p class="main-frame">Best frame: ${frameIdx}</p>
+                            <a href="${url}" target="_blank" class="card-link">YouTube Video</a>
+                        </div>
+                    `;
+                    framesSection.appendChild(newCard);
+                    updateRetrievedFramesCount();
                     alert(data.message + " " + data.suggestion['watch_url']);
-                    // Optionally, update the UI with the new frame
-                    // Chinh o cho nay ne, doc cai suggestion la duoc
                 } else {
                     alert('Failed to add frame.');
                 }
