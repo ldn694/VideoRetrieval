@@ -193,6 +193,63 @@ def download_csv():
     # Send the file to the client using 'download_name' instead of 'attachment_filename'
     return send_file(csv_filepath, as_attachment=True, download_name=csv_filename)
 
+@app.route('/add_frame', methods=['POST'])
+def add_frame():
+    # Extract video_name and frame_idx from the form data
+    video_name = request.form.get('video_name')
+    frame_idx = int(request.form.get('frame_idx'))
+    folder_path = settings.DATA_PATH
+
+    map_keyframe_file = os.path.join(folder_path, 'map-keyframes', video_name + '.csv', )
+    fps = -1
+    with open(map_keyframe_file, 'r') as f:
+        reader = csv.reader(f)
+        keyframes = list(reader)
+        fps = int(float(keyframes[1][2]))
+
+    print(f"FPS: {fps}")
+    
+    if fps == -1:
+        return {"status": "error", "message": f"Could not find FPS for video {video_name}"}
+    
+    media_info_file = os.path.join(folder_path, 'media-info', video_name + '.json')
+    watch_url = ''
+    with open(media_info_file, 'r', encoding='utf-8') as f:
+        media_info = json.load(f)
+        watch_url = media_info['watch_url']
+
+    if watch_url == '':
+        return {"status": "error", "message": f"Could not find watch URL for video {video_name}"}
+
+    num_seconds = frame_idx / fps
+    num_seconds = int(num_seconds)
+    minute = num_seconds // 60
+    second = num_seconds % 60
+
+    # Make the url start at num_seconds
+
+    watch_url = f"{watch_url}&t={num_seconds}s"
+
+    # Create a suggestion object
+    suggestion = {
+        "video_name": video_name,
+        "frame_idx": frame_idx,
+        "minute": minute,
+        "second": second,
+        "watch_url": watch_url
+    }
+
+
+
+
+
+    # Optionally, store this new frame in your current frame list or cache
+    # Example: cache_frame_key = f"{video_name}_{frame_idx}"
+    # cache_frame[cache_frame_key] = img
+
+    # Return a JSON response
+    return {"status": "success", "message": f"Frame added for video {video_name} at index {frame_idx}", "suggestion": suggestion}
+
 
 if __name__ == '__main__':
     app.run(debug=True)
