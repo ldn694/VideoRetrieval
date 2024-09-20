@@ -12,6 +12,7 @@ import csv
 from googletrans import Translator
 from FrameRetrieval import retrieve_frames, convert_to_suggestion_input, create_suggestion, retrieve_frames_multiple_queries
 import settings
+import chromadb
 
 app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
@@ -32,9 +33,13 @@ def translate_query(query):
 
 
 # Global model variables (loaded once)
-device = "cuda" if torch.cuda.is_available() else "cpu"
+#device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cpu"
 model, _, preprocess = open_clip.create_model_and_transforms(
     'MobileCLIP-B', pretrained='datacompdr_lt', device=device)
+
+chroma_client = chromadb.PersistentClient(path="AIC_db")
+collection = chroma_client.get_collection("image_embeddings")
 
 
 @app.route('/')
@@ -119,7 +124,7 @@ def submit():
 
     # Create suggestions for clips
     suggestions = retrieve_frames_multiple_queries(
-        queries, folder_path, num_frames)
+        queries, folder_path, num_frames, model, preprocess, device, collection)
 
     # TODO: Load all the keyframes for the suggestions
     for suggestion in suggestions:

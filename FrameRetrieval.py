@@ -12,24 +12,17 @@ import matplotlib.pyplot as plt
 from googletrans import Translator
 import chromadb
 import settings
+import time
 
 def translate_query(query):
     translator = Translator()
     translated_query = translator.translate(query, dest='en').text
     return translated_query
 
-def retrieve_frames(query, folder_path, num_frames):
+def retrieve_frames(query, folder_path, num_frames, model, preprocess, device, collection):
     if not os.path.exists(folder_path):
         folder_path = 'D:/AIC24/Data' # Change this to the path of the folder containing the data
-    #device = "cuda" if torch.cuda.is_available() else "cpu"
-    device = "cpu"
-    model, _, preprocess = open_clip.create_model_and_transforms('MobileCLIP-B', pretrained='datacompdr_lt',device=device)
-
-    # Create database file at folder "AIC_db" or load into client if exists.
-    chroma_client = chromadb.PersistentClient(path="AIC_db")
-
-    # Create the collection
-    collection = chroma_client.get_collection("image_embeddings")
+    initial_seconds = time.time()
 
     query = translate_query(query)
 
@@ -37,20 +30,28 @@ def retrieve_frames(query, folder_path, num_frames):
     text_tokens = tokenizer.tokenize(text)
     text_tokens = text_tokens.to(device)
 
+    
+
     with torch.no_grad():
         text_features = model.encode_text(text_tokens).float()
         text_features /= text_features.norm(dim=-1, keepdim=True)
+
+    print(f"Time taken to process text query: {time.time() - initial_seconds}")
+    initial_seconds = time.time()
 
     query_vector = text_features[0].tolist()
         
     results = collection.query(
         query_embeddings=[query_vector],
-        n_results=10000
+        n_results=100000
     )
     
     data_result = collection.get(ids=results['ids'][0], include = ["embeddings", "metadatas"])
+
+    print(f"Time for database query: {time.time() - initial_seconds}")
+    initial_seconds = time.time()
     
-    images_features = torch.FloatTensor(data_result['embeddings'])
+    images_features = torch.FloatTensor(data_result['embeddings']).to(device)
     similiarity = (text_features @ images_features.transpose(1, 0)).squeeze(0)
     similiarity_all = []
 
@@ -58,6 +59,9 @@ def retrieve_frames(query, folder_path, num_frames):
         similiarity_all.append((similiarity[i].item(), data_result['metadatas'][i]))
     
     similiarity_all = sorted(similiarity_all, key=lambda x: x[0], reverse=True)
+
+    print(f"Time for similarity calculation: {time.time() - initial_seconds}")
+    initial_seconds = time.time()
 
     print('Found %d frames' % len(similiarity_all))
 
@@ -149,11 +153,11 @@ def create_suggestion(retrieved_frames=[]):
 
     return suggestions
 
-def retrieve_frames_multiple_queries(queries, folder_path, num_frames):
+def retrieve_frames_multiple_queries(queries, folder_path, num_frames, model, preprocess, device, collection):
     suggestions_inputs = []
     for id, query in queries:
         top_frames = retrieve_frames(
-            query, folder_path, num_frames)
+            query, folder_path, num_frames, model, preprocess, device, collection)
         suggestions_input = convert_to_suggestion_input(
             top_frames)
         suggestions_inputs.append(suggestions_input)
