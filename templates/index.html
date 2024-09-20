@@ -137,6 +137,9 @@
         .card-title > .btn-close {
             margin-left: auto;
         }
+        ::placeholder {
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -201,16 +204,29 @@
                     <p class="retrieved_frames">Total frames: {{ suggestions|length }}</p>
                 </div>
                 <div id="FramesControl" class="collapse show">
+                    <h6>Custom frame</h6>
                     <div class="input-group mb-3">
-                        <label for="video_name" class="input-group-text" style="width:5em">Video:</label>
-                        <input type="text" id="video_name" name="video_name" class="form-control" required>
+                        <input type="text" id="video_name" name="video_name" 
+                                class="form-control" placeholder="L04_V019" required>
+                        <input type="number" id="frame_idx" name="frame_idx" 
+                                class="form-control" placeholder="18104" required>
+                        <button class="btn btn-primary" type="button" onclick="addFrame()"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <div class="input-group mb-3">
-                        <label for="frame_idx" class="input-group-text" style="width:5em">Frame:</label>
-                        <input type="number" id="frame_idx" name="frame_idx" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <button class="btn btn-primary" type="button" onclick="addFrame()">Add Frame</button>
+                    
+                    <div class="row mb-3 align-items-center">
+                        <h6 class="col" style="margin-bottom:0px">Frames order</h6>
+                        <div class="dropdown col">
+                            <button style="width:100%" class="btn btn-outline-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                None
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                                <li><a class="dropdown-item" href="#" onclick="sortFrame('none')">None</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="sortFrame('best_frame')">Best frame</a></li>
+                                {% for query_id, query_text in queries %}
+                                    <li><a class="dropdown-item" href="#" onclick="sortFrame('{{ query_id }}')">Query {{ query_id }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -276,6 +292,27 @@
         // Drag-and-Drop Logic
         let dragged;
         let num_queries = 1;
+
+        function sortFrame(option) {
+            const sortTitle = document.getElementById('sortDropdown');
+            switch (option) {
+                case 'none':
+                    // Implement sorting logic for 'None'
+                    sortTitle.textContent = 'None';
+                    console.log('Sorting by: None');
+                    break;
+                case 'best_frame':
+                    // Implement sorting logic for 'Best frame'
+                    sortTitle.textContent = 'Best frame';
+                    console.log('Sorting by: Best frame');
+                    break;
+                default:
+                    // Implement sorting logic for each query ID
+                    sortTitle.textContent = `Query ${option}`;
+                    console.log(`Sorting by: Query ${option}`);
+                    break;
+            }
+        }
 
         function updateMainFrame(element, frameNumber, score, imageSrc) {
             // Find the closest card element
