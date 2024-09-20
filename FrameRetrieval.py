@@ -59,6 +59,8 @@ def retrieve_frames(query, folder_path, num_frames):
     
     similiarity_all = sorted(similiarity_all, key=lambda x: x[0], reverse=True)
 
+    print('Found %d frames' % len(similiarity_all))
+
     return similiarity_all[:num_frames]
 
 def convert_to_suggestion_input(top_frames):

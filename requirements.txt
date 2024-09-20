@@ -1,7 +1,8 @@
 open_clip_torch 
 matplotlib
-numpy
+numpy==1.26.4
 flask
 unidecode
 pillow
 googletrans==4.0.0-rc1
+chromadb
