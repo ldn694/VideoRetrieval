@@ -1,2 +1,6 @@
 AIC_db
+query_answer.csv
+local_settings.py
+__pycache__/
+downloads/*
 suggestions.json

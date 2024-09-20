@@ -6,6 +6,13 @@
 pip install -r requirements.txt
 ```
 
+In `local_settings.py`, specify `DATA_PATH` to match your data path. For example 
+
+```py
+# local_settings.py
+DATA_PATH = 'E:/AIC2024/Data'
+```
+
 ## How to run
 
 ```

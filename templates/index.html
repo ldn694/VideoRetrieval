@@ -4,25 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Frame Retrieval</title>
-    <style>
+    <!-- Latest compiled and minified CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/regular.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/solid.css') }}" rel="stylesheet" />
+    <!-- <style>
         body {
             font-family: Arial, sans-serif;
         }
-        .container {
+        img {
+            width: 100%;
+            height: auto;
+        }
+    </style> -->
+    <style>
+        .container-fluid {
             display: flex;
+            flex-direction: column;
             height: 100vh;
         }
         .input-section {
-            flex: 2;
-            padding: 20px;
+            padding: 10px;
             background-color: #f4f4f4;
             border-right: 1px solid #ccc;
         }
         .right-section {
-            flex: 8;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+            padding: 10px;
         }
         .csv-section {
             display: flex;
@@ -35,17 +46,8 @@
             flex-grow: 1;
             overflow-y: auto;
         }
-        .frame {
-            margin: 10px;
-            width: calc(20% - 20px);
-            cursor: pointer;
-            border: 1px solid #ccc;
-            padding: 10px;
-            position: relative;
-        }
-        img {
-            width: 100%;
-            height: auto;
+        .frames-section > .card {
+            margin: 5px;
         }
         /* Modal styles */
         .modal {
@@ -74,6 +76,10 @@
             font-size: 35px;
             font-weight: bold;
         }
+        img {
+            width: 100%;
+            height: auto;
+        }
         .close:hover,
         .close:focus {
             color: #bbb;
@@ -84,45 +90,174 @@
         .dragging {
             opacity: 0.5;
         }
+        .container-fluid {
+            max-height: 100vh; /* Set the maximum height */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .textarea-container {
+            height: 4em;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .textarea-container > textarea {
+            resize: none;
+            line-height: 1.2em; /* Set the line height */
+            height: 4em; /* Set the height */
+        }
+        .dropdown-menu {
+            position: absolute;
+            z-index: 1000; /* Ensure the dropdown appears above other elements */
+        }
+        .delete-query {
+            height: 100%;
+            padding-left: 5px;
+            padding-right: 5px;
+            text-align: center;
+            z-index: 0 !important;
+        }
+        .textarea-container > .input-group-text {
+            height: 100%;
+            padding-left: 5px;
+            padding-right: 5px;
+            text-align: center;
+        }
+
+        .no-outline {
+            --bs-btn-border-color: transparent;
+        }
+        .float-end {
+            float: right;
+        }
+        .card-title > .btn-close {
+            margin-left: auto;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <!-- Left section for query input -->
-        <div class="input-section">
-            <h1>Retrieve Video Frames</h1>
-            <form method="POST">
-                <label for="query">Text Query:</label>
-                <input type="text" id="query" name="query" required><br><br>
-                
-                <label for="folder_path">Folder Path:</label>
-                <input type="text" id="folder_path" name="folder_path" required><br><br>
-                
-                <label for="num_frames">Number of Frames:</label>
-                <input type="number" id="num_frames" name="num_frames" required><br><br>
-                
-                <button type="submit">Submit</button>
-            </form>
-        </div>
-        
-        <!-- Right section for frames display and CSV download -->
-        <div class="right-section">
-            <!-- CSV Download Section -->
-            <div class="csv-section">
-                <input type="text" id="custom_text" placeholder="Custom Text (optional)">
-                <button onclick="extractCSV()">Download CSV</button>
+        <div class="row" style="height:100%">
+            <div class="col-md-3 input-section">
+                <h3>Retrieve Video Frames</h3>
+                <hr>
+                <h5 data-bs-toggle="collapse" href="#InputSection" aria-controls="InputSection" role="button"> Input</h5>  
+                <form method="POST" action="/submit" onsubmit="showSpinner()" id="InputSection" class="collapse show">
+                    <div id="query-container">
+                        {% if queries %}
+                            {% for query_id, query_text in queries %}
+                                <div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
+                                    <span class="input-group-text">{{ query_id }}</span>
+                                    <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required>{{ query }}</textarea>
+                                    <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
+                                <span class="input-group-text">0</span>
+                                <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
+                                <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="button" class="btn btn-secondary btn-block" onclick="addTextarea()"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label for="num_frames" class="input-group-text">Limit:</label>
+                        <input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
+                    </div>
+                    
+                    <button class="btn btn-primary" type="submit" id="submit-button">Submit</button>
+                </form>
+                <hr>
+                <!-- CSV Download Section -->
+                <h5 data-bs-toggle="collapse" href="#CSVSection" aria-controls="CSVSection" role="button">Download</h5>
+                <div class="collapse show" id="CSVSection">
+                    <div class="input-group mb-3">
+                        <label for="custom_text" class="input-group-text" style="width:5em">Answer:</label>
+                        <input class="form-control" type="text" name="custom_text" id="custom_text" placeholder="Answer for QA">
+                    </div>  
+                    <div class="input-group mb-3">
+                        <label for="file_name" class="input-group-text" style="width:5em">File:</label>
+                        <input class="form-control" type="text" name="file_name" id="file_name" value="{{ csv_filename }}">
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-primary" type="button" onclick="extractCSV()">Download CSV</button>
+                    </div>
+                </div>
+                <hr>
+                <h5 data-bs-toggle="collapse" href="#FramesControl" aria-controls="FramesControl" role="button">Frames control</h5>
+                <div class="mb-3">
+                    <p class="retrieved_frames">Total frames: {{ suggestions|length }}</p>
+                </div>
+                <div id="FramesControl" class="collapse show">
+                    <div class="input-group mb-3">
+                        <label for="video_name" class="input-group-text" style="width:5em">Video:</label>
+                        <input type="text" id="video_name" name="video_name" class="form-control" required>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label for="frame_idx" class="input-group-text" style="width:5em">Frame:</label>
+                        <input type="number" id="frame_idx" name="frame_idx" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-primary" type="button" onclick="addFrame()">Add Frame</button>
+                    </div>
+                </div>
             </div>
             
-            <!-- Frames Display Section -->
-            <div class="frames-section" id="framesSection">
-                {% if images %}
-                    {% for img_str, video_name, frame_idx, sim in images %}
-                        <div class="frame" draggable="true" ondragstart="drag(event)" ondrop="drop(event)" ondragover="allowDrop(event)">
-                            <img src="data:image/jpeg;base64,{{ img_str }}" alt="Frame" onclick="openModal('{{ img_str }}')">
-                            <p>{{ video_name }} - Frame {{ frame_idx }} {{ sim }}</p>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+            <!-- Right section for frames and suggestions display -->
+            <div class="col-md-9 right-section">
+                
+                <!-- Frames Display Section (for frame view mode) -->
+
+                <!-- Suggestions Display Section (for clip view mode) -->
+                <div class="frames-section" id = "framesSection">
+                    {% if suggestions %}
+                        {% for suggestion in suggestions %}
+                            <div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
+                                <div class="card-header">
+                                    <div class="row">
+                                        <b class="col video-name">{{ suggestion.frames[0][0] }}</b>
+                                        <button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
+                                    </div>
+                                </div>
+                                <img class="thumbnail" 
+                                    src="data:image/jpeg;base64,{{ suggestion.frames[suggestion.main_frame][5] }}" onclick="openModal('{{ suggestion.frames[suggestion.main_frame][5] }}')">
+                                <div class="card-body suggestion-info">
+                                    <p class="sim">{{ suggestion.frames[suggestion.main_frame][3] }} (sim)</p>
+                                    <p class="main-frame">Best frame: {{ suggestion.frames[suggestion.main_frame][1] }}</p>
+
+                                    <!-- YouTube Link -->
+                                    <a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
+                                    target="_blank" class="card-link">YouTube Video</a>
+                                    
+                                    <!-- Frame scores -->
+                                    <div class="dropdown">
+                                        <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
+                                            {{ suggestion.num_unique }} frame(s)
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                        {% for frame in suggestion.frames %}
+                                            <li><h5 class="dropdown-header">Frame {{ frame[1] }}</h5></li>
+                                            <li class="dropdown-item" onclick="updateMainFrame(this, '{{ frame[1] }}', '{{ frame[3] }}', '{{ frame[5] }}')">
+                                                Score {{ frame[3] }} <br>
+                                                Timestamp: {{ frame[2] }}s <br>
+                                                Query ID: {{ frame[4] }}
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -136,19 +271,118 @@
     <script>
         // Drag-and-Drop Logic
         let dragged;
+        let num_queries = 1;
 
-        function allowDrop(event) {
+        function updateMainFrame(element, frameNumber, score, imageSrc) {
+            // Find the closest card element
+            const card = element.closest('.card');
+
+            // Update the main frame text
+            const mainFrameElement = card.querySelector('.main-frame');
+            mainFrameElement.textContent = `Best frame: ${frameNumber}`;
+
+            // update sim
+            const simElement = card.querySelector('.sim');
+            simElement.textContent = `${score} (sim)`;
+
+            // Update the image source
+            const imageElement = card.querySelector('.thumbnail');
+            imageElement.src = `data:image/jpeg;base64,${imageSrc}`;
+            imageElement.onclick = function() {
+                openModal(imageSrc);
+            };
+        }
+
+        function deleteCard(button) {
+            if (confirm("Are you sure you want to delete this card?")) {
+                const card = button.closest('.card');
+                card.remove();
+                updateRetrievedFramesCount();
+            }
+        }
+
+        function updateRetrievedFramesCount() {
+            const framesSection = document.getElementById('framesSection');
+            const totalFrames = framesSection.getElementsByClassName('card').length;
+            const retrievedFramesElement = document.querySelector('.retrieved_frames');
+            retrievedFramesElement.textContent = `Total frames: ${totalFrames}`;
+        }
+
+        function showSpinner() {
+            const submitButton = document.getElementById('submit-button');
+            submitButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Submitting...
+            `;
+            submitButton.disabled = true;
+        }
+
+        function addTextarea() {
+            const queryContainer = document.getElementById('query-container');
+            const newTextarea = document.createElement('div');
+            newTextarea.classList.add('textarea-container', 'input-group', 'mb-2');
+            // newTextarea.draggable = true;
+            // newTextarea.ondragstart = dragQuery;
+            // newTextarea.ondragover = onDragOverQuery;
+            // newTextarea.ondrop = dropQuery;
+            // newTextarea.ondragend = dragEndQuery;
+            newTextarea.innerHTML = `
+                <span class="input-group-text">${num_queries}</span>
+                <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
+                <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+            `;
+            queryContainer.appendChild(newTextarea);
+            num_queries += 1;
+        }
+
+        function deleteTextarea(button) {
+            // remove textarea container
+            button.closest('.textarea-container').remove();
+            num_queries -= 1;
+        }
+
+        function onDragOverQuery(event) {
             event.preventDefault();
         }
 
-        function drag(event) {
-            dragged = event.target.closest(".frame");
+        function dragQuery(event) {
+            dragged = event.target.closest(".textarea-container");
             dragged.classList.add("dragging");
         }
 
-        function drop(event) {
+        function dropQuery(event) {
             event.preventDefault();
-            const target = event.target.closest(".frame");
+            const target = event.target.closest(".textarea-container");
+            if (dragged !== target) {
+                const queryContainer = document.getElementById('query-container');
+                queryContainer.insertBefore(dragged, target);
+            }
+        }
+
+        function dragEndQuery(event) {
+            if (dragged) {
+                dragged.classList.remove("dragging");
+            }
+        }
+
+        function allowDropFrame(event) {
+            event.preventDefault();
+        }
+
+        function dragFrame(event) {
+            dragged = event.target.closest(".card");
+            dragged.classList.add("dragging");
+        }
+
+        function onDragEndFrame(event) {
+            if (dragged) {
+                dragged.classList.remove("dragging");
+            }
+        }
+
+        function dropFrame(event) {
+            event.preventDefault();
+            const target = event.target.closest(".card");
             if (dragged !== target) {
                 const framesSection = document.getElementById('framesSection');
                 framesSection.insertBefore(dragged, target);
@@ -172,13 +406,15 @@
 
         // Function to extract the current order and send it to the server
         function extractCSV() {
-            const frames = document.querySelectorAll('.frame');
+            console.log('Extracting CSV...');
+            const frames = document.querySelectorAll('.suggestion');
             const order = [];
             const customText = document.getElementById('custom_text').value;
+            const fileName = document.getElementById('file_name').value;
 
             frames.forEach(frame => {
-                const video_name = frame.querySelector('p').textContent.split(' - ')[0];
-                const frame_idx = frame.querySelector('p').textContent.split('Frame ')[1].split(' ')[0];
+                const video_name = frame.querySelector('.video-name').textContent;
+                const frame_idx = frame.querySelector('.main-frame').textContent.split(' ')[2];
                 order.push({ video_name, frame_idx });
             });
 
@@ -186,7 +422,8 @@
             const formData = new FormData();
             formData.append('order', JSON.stringify(order));
             formData.append('custom_text', customText); // Pass the custom text to the backend
-
+            formData.append('file_name', fileName); // Pass the file name to the backend
+            
             fetch('/download_csv', {
                 method: 'POST',
                 body: formData
@@ -197,10 +434,70 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'query_answer.csv';
+                a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
+            });
+        }
+
+        function addFrame() {
+            // Get video_name and frame_idx values from input fields
+            const videoName = document.getElementById('video_name').value;
+            const frameIdx = document.getElementById('frame_idx').value;
+
+            // Validate inputs
+            if (!videoName || !frameIdx) {
+                alert('Video name and frame index are required.');
+                return;
+            }
+
+            if (isNaN(frameIdx)) {
+                alert('Frame index must be a number.');
+                return;
+            }
+
+            // Create a FormData object
+            const formData = new FormData();
+            formData.append('video_name', videoName);
+            formData.append('frame_idx', frameIdx);
+
+            // Send the data to the server using fetch
+            fetch('/add_frame', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response (show a message or update UI)
+                if (data.status === "success") {
+                    // Add the frame to the frames section
+                    const framesSection = document.getElementById('framesSection');
+                    const url = data.suggestion['watch_url']
+                    const newCard = document.createElement('div');
+                    newCard.classList.add('suggestion', 'card', 'col-md-2');
+                    newCard.innerHTML = `
+                        <div class="card-header">
+                            <div class="row">
+                                <b class="col video-name">${videoName}</b>
+                                <button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
+                            </div>
+                        </div>
+                        <div class="card-body suggestion-info">
+                            <p class="main-frame">Best frame: ${frameIdx}</p>
+                            <a href="${url}" target="_blank" class="card-link">YouTube Video</a>
+                        </div>
+                    `;
+                    framesSection.appendChild(newCard);
+                    updateRetrievedFramesCount();
+                    alert(data.message + " " + data.suggestion['watch_url']);
+                } else {
+                    alert('Failed to add frame.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the frame.');
             });
         }
     </script>
