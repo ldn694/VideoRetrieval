@@ -10,7 +10,7 @@ import base64
 import json
 import csv
 from googletrans import Translator
-from VideoRetrieval import retrieve_frames, convert_to_suggestion_input, create_suggestion, retrieve_frames_multiple_queries
+from FrameRetrieval import retrieve_frames, convert_to_suggestion_input, create_suggestion, retrieve_frames_multiple_queries
 import settings
 
 app = Flask(__name__)
