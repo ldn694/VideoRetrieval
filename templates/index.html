@@ -172,8 +172,12 @@
                         <label for="num_frames" class="input-group-text">Limit:</label>
                         <input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
                     </div>
-                    
-                    <button class="btn btn-primary" type="submit" id="submit-button">Submit</button>
+                    <button class="btn btn-primary mb-2" type="submit" id="submit-button">Submit</button>
+                    {% if execution_time %}
+                        <div id="execution-time" class="alert alert-info">
+                            Last run: {{ execution_time }} seconds
+                        </div>
+                    {% endif %}
                 </form>
                 <hr>
                 <!-- CSV Download Section -->
@@ -230,8 +234,8 @@
                                 <img class="thumbnail" 
                                     src="data:image/jpeg;base64,{{ suggestion.frames[suggestion.main_frame][5] }}" onclick="openModal('{{ suggestion.frames[suggestion.main_frame][5] }}')">
                                 <div class="card-body suggestion-info">
-                                    <p class="sim">{{ suggestion.frames[suggestion.main_frame][3] }} (sim)</p>
-                                    <p class="main-frame">Best frame: {{ suggestion.frames[suggestion.main_frame][1] }}</p>
+                                    <p class="sim mb-1">Sim: {{ suggestion.frames[suggestion.main_frame][3] | round(6) }}</p>
+                                    <p class="main-frame mb-1">Frame: {{ suggestion.frames[suggestion.main_frame][1] }}</p>
 
                                     <!-- YouTube Link -->
                                     <a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
@@ -279,11 +283,12 @@
 
             // Update the main frame text
             const mainFrameElement = card.querySelector('.main-frame');
-            mainFrameElement.textContent = `Best frame: ${frameNumber}`;
+            mainFrameElement.textContent = `Frame: ${frameNumber}`;
 
             // update sim
             const simElement = card.querySelector('.sim');
-            simElement.textContent = `${score} (sim)`;
+            // round the score to 6 decimal places
+            simElement.textContent = `Sim: ${parseFloat(score).toFixed(6)}`;
 
             // Update the image source
             const imageElement = card.querySelector('.thumbnail');
@@ -414,7 +419,7 @@
 
             frames.forEach(frame => {
                 const video_name = frame.querySelector('.video-name').textContent;
-                const frame_idx = frame.querySelector('.main-frame').textContent.split(' ')[2];
+                const frame_idx = frame.querySelector('.main-frame').textContent.split(' ')[1];
                 order.push({ video_name, frame_idx });
             });
 
@@ -484,11 +489,17 @@
                             </div>
                         </div>
                         <div class="card-body suggestion-info">
-                            <p class="main-frame">Best frame: ${frameIdx}</p>
+                            <p class="main-frame">Frame: ${frameIdx}</p>
                             <a href="${url}" target="_blank" class="card-link">YouTube Video</a>
                         </div>
                     `;
-                    framesSection.appendChild(newCard);
+                    newCard.draggable = true;
+                    newCard.ondragstart = dragFrame;
+                    newCard.ondragover = allowDropFrame;
+                    newCard.ondrop = dropFrame;
+                    newCard.ondragend = onDragEndFrame;
+                    // add this card to the start of frames section
+                    framesSection.insertBefore(newCard, framesSection.firstChild);
                     updateRetrievedFramesCount();
                     alert(data.message + " " + data.suggestion['watch_url']);
                 } else {

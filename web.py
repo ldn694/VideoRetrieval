@@ -12,6 +12,7 @@ import csv
 from googletrans import Translator
 from FrameRetrieval import retrieve_frames, convert_to_suggestion_input, create_suggestion, retrieve_frames_multiple_queries
 import settings
+import time
 
 app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
@@ -48,6 +49,7 @@ def index():
 
 @app.route('/submit', methods=['POST'])
 def submit():
+    start_time = time.time()
     # Get input values
     # get all queries from the form
     queries = [(i, query) for i, query in enumerate(
@@ -60,62 +62,6 @@ def submit():
     print(f"Queries: {queries}, Number of Frames: {num_frames}")
     session['num_frames'] = num_frames  # Save num_frames to session
     session['csv_filename'] = csv_filename
-
-    # if view_mode == 'frame':
-    #     suggestions = retrieve_frames_multiple_queries(
-    #         queries, folder_path, num_frames)
-    #     # Generate a unique key for this query
-    #     cache_query_key = f"{query}_{folder_path}_{num_frames}"
-
-    #     # Check if the frames are already cached in memory
-    #     if cache_query_key not in cache_query:
-    #         if len(cache_query) >= max_cache_query_size:
-    #             # Remove the oldest cache entry
-    #             oldest_key = next(iter(cache_query))
-    #             del cache_query[oldest_key]
-    #         # Retrieve frames if they are not cached
-    #         suggestions = retrieve_frames_multiple_queries(
-    #             queries, folder_path, num_frames)
-    #         # Store the frames in the global cache
-    #         cache_query[cache_query_key] = (suggestions)
-
-    #     # Load the frames from the cache
-    #     suggestions = cache_query[cache_query_key]
-    #     # Frame view logic
-    #     images = []
-    #     for suggestion in suggestions:
-    #         frames = suggestion['frames']
-    #         frame = find_best_frame(frames)
-    #         file_name = frame[5]
-    #         frame_idx = frame[1]
-    #         timestamp = frame[2]
-    #         sim = frame[3]
-    #         minute = int(float(timestamp)) // 60
-    #         second = int(float(timestamp)) % 60
-    #         cache_frame_key = f"{video_name}_{file_name}"
-    #         if cache_frame_key not in cache_frame:
-    #             if len(cache_frame) >= max_cache_frame_size:
-    #                 # Remove the oldest cache entry
-    #                 oldest_key = next(iter(cache_frame))
-    #                 del cache_frame[oldest_key]
-    #             # Load the image
-    #             img = Image.open(os.path.join(
-    #                 folder_path, 'keyframes', video_name, file_name))
-    #             # Convert image to base64
-    #             buffered = io.BytesIO()
-    #             img.save(buffered, format="JPEG")
-    #             img_str = base64.b64encode(
-    #                 buffered.getvalue()).decode("utf-8")
-    #             cache_frame[cache_frame_key] = img_str
-    #         else:
-    #             img_str = cache_frame[cache_frame_key]
-    #         images.append(
-    #             (img_str, video_name, frame_idx, sim, minute, second))
-
-    #     return render_template('index.html', images=images, query=query, folder_path=folder_path, num_frames=num_frames)
-
-    # elif view_mode == 'clip':
-    # Clip view logic
 
     # Create suggestions for clips
     suggestions = retrieve_frames_multiple_queries(
@@ -152,13 +98,18 @@ def submit():
             video_name, video_url = line.strip().split(' ')
             video_urls[video_name] = video_url
 
+    end_time = time.time()
+    # Round to 2 decimal digits
+    execution_time = round(end_time - start_time, 4)
+
     return render_template(
         'index.html',
         queries=queries,
         suggestions=suggestions,
         video_urls=video_urls,
         num_frames=num_frames,
-        csv_filename=csv_filename
+        csv_filename=csv_filename,
+        execution_time=execution_time
     )
 
 
