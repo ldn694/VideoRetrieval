@@ -24,7 +24,8 @@ device = "cpu"
 model, _, preprocess = open_clip.create_model_and_transforms(
     'MobileCLIP-B', pretrained='datacompdr_lt', device=device)
 
-chroma_client = chromadb.PersistentClient(path="AIC_db")
+chroma_client = chromadb.PersistentClient(path=os.path.join(
+    settings.DATA_PATH, 'AIC_db'))
 collection = chroma_client.get_collection("image_embeddings")
 
 
@@ -83,7 +84,7 @@ def submit():
 
     # Load the video_id.txt file to map video names to YouTube URLs
     video_urls = {}
-    with open('video_id.txt', 'r') as f:
+    with open(os.path.join(folder_path, 'video_id.txt'), 'r') as f:
         for line in f:
             video_name, video_url = line.strip().split(' ')
             video_urls[video_name] = video_url
