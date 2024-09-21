@@ -1,0 +1,47 @@
+{% block frames_section %}
+<!-- Right section for frames and suggestions display -->
+<div class="col-md-9 right-section">
+	<!-- Suggestions Display Section (for clip view mode) -->
+	<div class="frames-section" id = "framesSection">
+		{% if suggestions %}
+			{% for suggestion in suggestions %}
+				<div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
+					<div class="card-header">
+						<div class="row">
+							<b class="col video-name">{{ suggestion.frames[0][0] }}</b>
+							<button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
+						</div>
+					</div>
+					<img class="thumbnail" 
+						src="data:image/jpeg;base64,{{ suggestion.frames[suggestion.main_frame][5] }}" onclick="openModal('{{ suggestion.frames[suggestion.main_frame][5] }}')">
+					<div class="card-body suggestion-info">
+						<p class="sim mb-1">Sim: {{ suggestion.frames[suggestion.main_frame][3] | round(6) }}</p>
+						<p class="main-frame mb-1">Frame: {{ suggestion.frames[suggestion.main_frame][1] }}</p>
+
+						<!-- YouTube Link -->
+						<a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
+						target="_blank" class="card-link">YouTube Video</a>
+						
+						<!-- Frame scores -->
+						<div class="dropdown">
+							<button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
+								{{ suggestion.num_unique }} frame(s)
+							</button>
+							<ul class="dropdown-menu">
+							{% for frame in suggestion.frames %}
+								<li><h5 class="dropdown-header">Frame {{ frame[1] }}</h5></li>
+								<li class="dropdown-item" onclick="updateMainFrame(this, '{{ frame[1] }}', '{{ frame[3] }}', '{{ frame[5] }}')">
+									Score {{ frame[3] }} <br>
+									Timestamp: {{ frame[2] }}s <br>
+									Query ID: {{ frame[4] }}
+								</li>
+							{% endfor %}
+							</ul>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		{% endif %}
+	</div>
+</div>
+{% endblock %}
