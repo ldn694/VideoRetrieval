@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
 
 # Global model variables (loaded once)
-#device = "cuda" if torch.cuda.is_available() else "cpu"
+# device = "cuda" if torch.cuda.is_available() else "cpu"
 device = "cpu"
 model, _, preprocess = open_clip.create_model_and_transforms(
     'MobileCLIP-B', pretrained='datacompdr_lt', device=device)
@@ -80,7 +80,7 @@ def submit():
             if frame[3] > frames[highest_sim_id][3]:
                 highest_sim_id = i
 
-        suggestion['main_frame'] = highest_sim_id
+        suggestion['best_frame'] = highest_sim_id
 
     # Load the video_id.txt file to map video names to YouTube URLs
     video_urls = {}
