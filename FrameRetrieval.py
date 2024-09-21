@@ -111,7 +111,7 @@ def create_suggestion(retrieved_frames=[]):
         r = l
         while r < len(combined_frames) and combined_frames[r][0] == combined_frames[l][0]:
             r += 1
-        candidates = [(-1, -1)] * (len(retrieved_frames) + 1)
+        candidates = [[] for _ in range(len(retrieved_frames) + 1)]
         for i in range(l, r):
             start_timestamp = combined_frames[i][2]
             # Each suggestion is maximum 60 seconds long
@@ -125,26 +125,35 @@ def create_suggestion(retrieved_frames=[]):
                 if (query_appearances[combined_frames[j][4]] == False):
                     query_appearances[combined_frames[j][4]] = True
                     unique_queries += 1
-                    if candidates[unique_queries] == (-1, -1) or combined_frames[candidates[unique_queries][1]][2] - combined_frames[candidates[unique_queries][0]][2] > end_timestamp - start_timestamp:
-                        candidates[unique_queries] = (i, j)
+                    candidates[unique_queries].append((i, j, end_timestamp - start_timestamp))
 
                 if unique_queries == len(retrieved_frames):
                     break
         # Now we have the best suggestion for this video for each number of unique queries
         # We choose the best suggestion among these, which has the highest number of unique queries
-        best_suggestion = (-1, -1, -1)
+        best_suggestions = None
+        max_unique_queries = 0
         for i in range(len(retrieved_frames), 0, -1):
-            if candidates[i] != (-1, -1):
-                best_suggestion = (candidates[i][0], candidates[i][1], i)
+            if len(candidates[i]) > 0:
+                best_suggestions = sorted(candidates[i], key=lambda x: x[2])[:min(5, len(candidates[i]))]
+                max_unique_queries = i
                 break
 
-        if best_suggestion != (-1, -1, -1):
+
+        if best_suggestions != None:
             # Find the max similarity score among the frames in the best suggestion
-            max_sim = 0
-            for i in range(best_suggestion[0], best_suggestion[1] + 1):
-                max_sim = max(max_sim, combined_frames[i][3])
-            suggestions.append({'num_unique': best_suggestion[2], 'max_sim': max_sim,
-                               'frames': combined_frames[best_suggestion[0]:best_suggestion[1] + 1]})
+            for i in range(len(best_suggestions)):
+                best_suggestion = best_suggestions[i]
+                max_sim = -1
+                for j in range(best_suggestion[0], best_suggestion[1] + 1):
+                    max_sim = max(max_sim, combined_frames[j][3])
+
+                suggestions.append({
+                    'video_name': combined_frames[best_suggestion[0]][0],
+                    'frames': combined_frames[best_suggestion[0]:best_suggestion[1] + 1],
+                    'num_unique': max_unique_queries,
+                    'max_sim': max_sim
+                })
 
         l = r
 
