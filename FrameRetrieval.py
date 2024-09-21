@@ -19,53 +19,64 @@ def translate_query(query):
     translated_query = translator.translate(query, dest='en').text
     return translated_query
 
-def retrieve_frames(query, folder_path, num_frames, model, preprocess, device, collection):
+def retrieve_frames(queries, folder_path, num_frames, device, model, collection):
     if not os.path.exists(folder_path):
         folder_path = 'D:/AIC24/Data' # Change this to the path of the folder containing the data
-    initial_seconds = time.time()
 
-    query = translate_query(query)
+    start = time.time()
 
-    text = [query]
+    text = []
+    for query in queries:
+        query = translate_query(query[1])
+        text.append(query)
+
     text_tokens = tokenizer.tokenize(text)
     text_tokens = text_tokens.to(device)
-
-    
 
     with torch.no_grad():
         text_features = model.encode_text(text_tokens).float()
         text_features /= text_features.norm(dim=-1, keepdim=True)
 
-    print(f"Time taken to process text query: {time.time() - initial_seconds}")
-    initial_seconds = time.time()
+    print(f"shape: {text_features.shape}")
 
-    query_vector = text_features[0].tolist()
-        
+    # Convert the text_features to a list of list
+    
     results = collection.query(
-        query_embeddings=[query_vector],
-        n_results=100000
+        query_embeddings=text_features.tolist(),
+        n_results=5000
     )
-    
-    data_result = collection.get(ids=results['ids'][0], include = ["embeddings", "metadatas"])
 
-    print(f"Time for database query: {time.time() - initial_seconds}")
-    initial_seconds = time.time()
-    
-    images_features = torch.FloatTensor(data_result['embeddings']).to(device)
-    similiarity = (text_features @ images_features.transpose(1, 0)).squeeze(0)
-    similiarity_all = []
+    data_result = []
+    embedding_result = []
 
-    for i in range(len(similiarity)):
-        similiarity_all.append((similiarity[i].item(), data_result['metadatas'][i]))
-    
-    similiarity_all = sorted(similiarity_all, key=lambda x: x[0], reverse=True)
+    for i in range(len(results['ids'])):
+        data_result.append(collection.get(ids=results['ids'][i], include = ["embeddings", "metadatas"]))
+        embedding_result.append(data_result[-1]['embeddings'])
 
-    print(f"Time for similarity calculation: {time.time() - initial_seconds}")
-    initial_seconds = time.time()
+    print(f"inference time: {time.time() - start}")
 
-    print('Found %d frames' % len(similiarity_all))
+    A = torch.FloatTensor(embedding_result)
+    B = text_features
+    C = torch.matmul(A, B.unsqueeze(-1)).squeeze(-1)
 
-    return similiarity_all[:num_frames]
+    print(A.shape)
+    print(B.shape)
+    print(C.shape)
+
+    # C has the shape of (q, n) where q is the number of queries and n is the number of results
+    # C[i, j] is the similarity score between query i and result j
+    # sort the results based on the similarity score
+
+    sorted_indices = torch.argsort(C, dim=1, descending=True)
+
+    results = []
+    for i in range(len(queries)):
+        results.append([])
+        for j in range(num_frames):
+            results[-1].append({"meta_data": data_result[i]['metadatas'][sorted_indices[i, j]], "similarity": C[i, sorted_indices[i, j]].item()})
+
+
+    return results
 
 def convert_to_suggestion_input(top_frames):
     # top_frames is the output of retrieve_frames function
@@ -76,12 +87,12 @@ def convert_to_suggestion_input(top_frames):
     suggestions_input = []
 
     for item in top_frames:
-        frame_idx = item[1]['frame_idx']
-        timestamp = float(item[1]['timestamp'])
-        file_name = item[1]['path'][-7:]
-        video_name = item[1]['video_name']
+        frame_idx = item['meta_data']['frame_idx']
+        timestamp = float(item['meta_data']['timestamp'])
+        file_name = item['meta_data']['path'][-7:]
+        video_name = item['meta_data']['video_name']
         suggestions_input.append(
-            (item[0], video_name, frame_idx, timestamp, file_name))
+            (item['similarity'], video_name, frame_idx, timestamp, file_name))
 
     return suggestions_input
 
@@ -112,23 +123,23 @@ def create_suggestion(retrieved_frames=[]):
         while r < len(combined_frames) and combined_frames[r][0] == combined_frames[l][0]:
             r += 1
         candidates = [[] for _ in range(len(retrieved_frames) + 1)]
-        for i in range(l, r):
+        i = l
+        while i < r:
             start_timestamp = combined_frames[i][2]
-            # Each suggestion is maximum 60 seconds long
             max_end_timestamp = start_timestamp + 60
             query_appearances = [False] * len(retrieved_frames)
             unique_queries = 0
-            for j in range(i, r):
+            j = i
+            while j < r:
                 end_timestamp = combined_frames[j][2]
                 if end_timestamp > max_end_timestamp:
                     break
-                if (query_appearances[combined_frames[j][4]] == False):
+                if not query_appearances[combined_frames[j][4]]:
                     query_appearances[combined_frames[j][4]] = True
                     unique_queries += 1
-                    candidates[unique_queries].append((i, j, end_timestamp - start_timestamp))
-
-                if unique_queries == len(retrieved_frames):
-                    break
+                j += 1
+            candidates[unique_queries].append((i, j - 1, end_timestamp - start_timestamp))
+            i = j
         # Now we have the best suggestion for this video for each number of unique queries
         # We choose the best suggestion among these, which has the highest number of unique queries
         best_suggestions = None
@@ -147,10 +158,16 @@ def create_suggestion(retrieved_frames=[]):
                 max_sim = -1
                 for j in range(best_suggestion[0], best_suggestion[1] + 1):
                     max_sim = max(max_sim, combined_frames[j][3])
+                
+                max_frames_sim = [-1] * len(retrieved_frames)
+                for j in range(best_suggestion[0], best_suggestion[1] + 1):
+                    if combined_frames[j][3] > max_frames_sim[combined_frames[j][4]]:
+                        max_frames_sim[combined_frames[j][4]] = combined_frames[j][3]
 
                 suggestions.append({
                     'video_name': combined_frames[best_suggestion[0]][0],
                     'frames': combined_frames[best_suggestion[0]:best_suggestion[1] + 1],
+                    'max_frames': max_frames_sim,
                     'num_unique': max_unique_queries,
                     'max_sim': max_sim
                 })
@@ -162,11 +179,11 @@ def create_suggestion(retrieved_frames=[]):
 
     return suggestions
 
-def retrieve_frames_multiple_queries(queries, folder_path, num_frames, model, preprocess, device, collection):
+def retrieve_frames_multiple_queries(queries, folder_path, num_frames, device, model, collection):
     suggestions_inputs = []
-    for id, query in queries:
-        top_frames = retrieve_frames(
-            query, folder_path, num_frames, model, preprocess, device, collection)
+    list_top_frames = retrieve_frames(queries, folder_path, num_frames, device, model, collection)
+
+    for top_frames in list_top_frames:
         suggestions_input = convert_to_suggestion_input(
             top_frames)
         suggestions_inputs.append(suggestions_input)

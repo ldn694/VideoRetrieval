@@ -18,21 +18,6 @@ import chromadb
 app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
 
-# In-memory cache for storing frame data
-cache_query = {}
-cache_frame = {}
-max_cache_query_size = 10
-max_cache_frame_size = 1000
-
-# Function to translate the query
-
-
-def translate_query(query):
-    translator = Translator()
-    translated_query = translator.translate(query, dest='en').text
-    return translated_query
-
-
 # Global model variables (loaded once)
 #device = "cuda" if torch.cuda.is_available() else "cpu"
 device = "cpu"
@@ -70,7 +55,7 @@ def submit():
 
     # Create suggestions for clips
     suggestions = retrieve_frames_multiple_queries(
-        queries, folder_path, num_frames, model, preprocess, device, collection)
+        queries, folder_path, num_frames, device, model, collection)
 
     # TODO: Load all the keyframes for the suggestions
     for suggestion in suggestions:
