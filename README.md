@@ -1,8 +1,15 @@
 # VideoRetrieval
 
-## How to install
+## Requirements
+- Conda
+- Python >= 3.10
+- Other dependencies listed in `requirements.txt`
 
+## How to install
+Use conda environment.
 ```
+conda create <env_name> python=3.10
+conda activate <env_name>
 pip install -r requirements.txt
 ```
 
@@ -20,8 +27,7 @@ python web.py
 ```
 
 ## How to use
-
-Please specify the folder path. The file should be organized like this
+The files in `DATA_PATH` should be organized like this
 ```
 folder_path
 |
@@ -35,5 +41,16 @@ folder_path
 |-----------L01_V001.pt
 |-----------L01_V002.pt
 |-----------...
+|--media-info
+|-----------L01_V001.json
+|-----------L01_V002.json
+|-----------...
+|--map-keyframes
+|-----------L01_V001.csv
+|-----------L01_V002.csv
+|-----------...
+|--AIC_db
+|-----------chroma.sqlite3
+|-----------<folder with .bin files>
 |--frame_data.json
 ```
