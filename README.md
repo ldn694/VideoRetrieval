@@ -52,5 +52,6 @@ folder_path
 |--AIC_db
 |-----------chroma.sqlite3
 |-----------<folder with .bin files>
+|-----------video_id.txt (copy from here to the data path)
 |--frame_data.json
 ```

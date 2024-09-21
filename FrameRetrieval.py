@@ -43,7 +43,7 @@ def retrieve_frames(queries, folder_path, num_frames, device, model, collection)
     
     results = collection.query(
         query_embeddings=text_features.tolist(),
-        n_results=5000
+        n_results=20000
     )
 
     data_result = []
