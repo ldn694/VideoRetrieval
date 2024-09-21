@@ -149,7 +149,8 @@
     <script>
         // Drag-and-Drop Logic
         let dragged;
-        let num_queries = 1;
+		// Number of queries if queries exists, else 1
+        let num_queries = {{ queries|length if queries|length > 0 else 1 }};
 
         function sortFrame(option) {
             const sortTitle = document.getElementById('sortDropdown');
