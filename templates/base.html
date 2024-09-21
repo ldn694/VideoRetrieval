@@ -201,6 +201,13 @@
             }
         }
 
+		function updateQueryNumbers() {
+			const queryNumbers = document.querySelectorAll('.textarea-container .input-group-text');
+			queryNumbers.forEach((queryNumber, index) => {
+				queryNumber.textContent = index;
+			});
+		}
+
         function updateRetrievedFramesCount() {
             const framesSection = document.getElementById('framesSection');
             const totalFrames = framesSection.getElementsByClassName('card').length;
@@ -238,6 +245,7 @@
         function deleteTextarea(button) {
             // remove textarea container
             button.closest('.textarea-container').remove();
+			updateQueryNumbers();
             num_queries -= 1;
         }
 
