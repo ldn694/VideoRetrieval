@@ -50,7 +50,6 @@ def submit():
     num_frames = int(request.form.get('num_frames'))
     csv_filename = request.form.get('file_name', 'query-p1-1-kis.csv')
     uploaded_files = request.files.getlist('images[]')
-    print(f"Uploaded: {len(uploaded_files)} files")
     # if upload folder does not exist, create it
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
