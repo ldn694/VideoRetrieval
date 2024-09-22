@@ -81,17 +81,19 @@ def submit():
                 highest_sim_id = i
 
         suggestion['best_frame'] = highest_sim_id
+        suggestion['main_frame'] = highest_sim_id
 
     # Load the video_id.txt file to map video names to YouTube URLs
-    video_urls = {}
-    with open(os.path.join(folder_path, 'video_id.txt'), 'r') as f:
-        for line in f:
-            video_name, video_url = line.strip().split(' ')
-            video_urls[video_name] = video_url
-
+    video_urls = load_video_urls()
     end_time = time.time()
     # Round to 2 decimal digits
     execution_time = round(end_time - start_time, 4)
+
+    session['queries'] = queries
+    session['execution_time'] = execution_time
+    # save suggestions to a json file
+    with open('suggestions.json', 'w') as f:
+        json.dump(suggestions, f)
 
     return render_template(
         'index.html',
@@ -100,8 +102,18 @@ def submit():
         video_urls=video_urls,
         num_frames=num_frames,
         csv_filename=csv_filename,
-        execution_time=execution_time
+        execution_time=execution_time,
+        sort_by="none"
     )
+
+
+def load_video_urls():
+    video_urls = {}
+    with open(os.path.join(settings.DATA_PATH, 'video_id.txt'), 'r') as f:
+        for line in f:
+            video_name, video_url = line.strip().split(' ')
+            video_urls[video_name] = video_url
+    return video_urls
 
 
 def find_best_frame(frames):
@@ -186,9 +198,46 @@ def add_frame():
     # Optionally, store this new frame in your current frame list or cache
     # Example: cache_frame_key = f"{video_name}_{frame_idx}"
     # cache_frame[cache_frame_key] = img
-
     # Return a JSON response
     return {"status": "success", "message": f"Frame added for video {video_name} at index {frame_idx}", "suggestion": suggestion}
+
+
+def suggestion_sim(suggestion):
+    if suggestion['main_frame'] == -1:
+        return 0
+    return suggestion['frames'][suggestion['main_frame']][3]
+
+# route for sorting suggestions by best frame
+
+
+@app.route('/frames', methods=['GET'])
+def sort():
+    sort = request.args.get('sort')
+    suggestions = json.load(open('suggestions.json'))
+    num_frames = session.get('num_frames', 100)  # Default to 100 if not set
+    csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
+    queries = session.get('queries', [])
+    execution_time = session.get('execution_time', None)
+
+    if sort == 'none':
+        pass
+    elif sort == 'best_frame':
+        for suggestion in suggestions:
+            suggestion['main_frame'] = suggestion['best_frame']
+    elif not len(sort) == 0:
+        query_id = int(sort)
+        for suggestion in suggestions:
+            suggestion['main_frame'] = suggestion['max_frames'][query_id]
+
+    suggestions = sorted(suggestions, key=suggestion_sim, reverse=True)
+    return render_template('index.html',
+                           queries=queries,
+                           suggestions=suggestions,
+                           num_frames=num_frames,
+                           csv_filename=csv_filename,
+                           video_urls=load_video_urls(),
+                           execution_time=execution_time,
+                           sort=sort)
 
 
 if __name__ == '__main__':

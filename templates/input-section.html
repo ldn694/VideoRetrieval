@@ -56,6 +56,7 @@
 	<div class="mb-3">
 		<p class="retrieved_frames">Total frames: {{ suggestions|length }}</p>
 	</div>
+	<!-- Frame control -->
 	<div id="FramesControl" class="collapse show">
 		<h6>Custom frame</h6>
 		<div class="input-group mb-3">
@@ -65,22 +66,30 @@
 					class="form-control" placeholder="18104" required>
 			<button class="btn btn-primary" type="button" onclick="addFrame()"><i class="fa-solid fa-plus"></i></button>
 		</div>
-		
-		<div class="row mb-3 align-items-center">
-			<h6 class="col" style="margin-bottom:0px">Frames order</h6>
-			<div class="dropdown col">
-				<button style="width:100%" class="btn btn-outline-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-					None
-				</button>
-				<ul class="dropdown-menu" aria-labelledby="sortDropdown">
-					<li><a class="dropdown-item" href="#" onclick="sortFrame('none')">None</a></li>
-					<li><a class="dropdown-item" href="#" onclick="sortFrame('best_frame')">Best frame</a></li>
-					{% for query_id, query_text in queries %}
-						<li><a class="dropdown-item" href="#" onclick="sortFrame('{{ query_id }}')">Query {{ query_id }}</a></li>
-					{% endfor %}
-				</ul>
+		<form method="GET" action="/frames" id="frames-form">
+			<div class="row mb-3 align-items-center">
+				<h6 class="col" style="margin-bottom:0px">Frames order</h6>
+				<div class="dropdown col">
+					<input class="form-control" type="hidden" name="sort" id="sort" value="{{ sort }}">
+					<button style="width:100%" class="btn btn-outline-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+						{% if sort == None %}
+							None
+						{% elif sort == 'best_frame' %}
+							Best frame
+						{% else %}
+							Query {{ sort }}
+						{% endif %}
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="sortDropdown">
+						<li><a class="dropdown-item" href="#" onclick="sortFrame('none')">None</a></li>
+						<li><a class="dropdown-item" href="#" onclick="sortFrame('best_frame')">Best frame</a></li>
+						{% for query_id, query_text in queries %}
+							<li><a class="dropdown-item" href="#" onclick="sortFrame('{{ query_id }}')">Query {{ query_id }}</a></li>
+						{% endfor %}
+					</ul>
+				</div>
 			</div>
-		</div>
+		</form>
 	</div>
 </div>
 {% endblock %}
