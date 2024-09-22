@@ -25,7 +25,7 @@
 						<!-- Frame scores -->
 						<div class="dropdown">
 							<button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
-								{{ suggestion.num_unique }} frame(s)
+								{{ suggestion.frames|length }} frame(s)
 							</button>
 							<ul class="dropdown-menu">
 							{% for frame in suggestion.frames %}

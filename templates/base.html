@@ -149,28 +149,12 @@
     <script>
         // Drag-and-Drop Logic
         let dragged;
-		// Number of queries if queries exists, else 1
-        let num_queries = {{ queries|length if queries|length > 0 else 1 }};
 
         function sortFrame(option) {
-            const sortTitle = document.getElementById('sortDropdown');
-            switch (option) {
-                case 'none':
-                    // Implement sorting logic for 'None'
-                    sortTitle.textContent = 'None';
-                    console.log('Sorting by: None');
-                    break;
-                case 'best_frame':
-                    // Implement sorting logic for 'Best frame'
-                    sortTitle.textContent = 'Best frame';
-                    console.log('Sorting by: Best frame');
-                    break;
-                default:
-                    // Implement sorting logic for each query ID
-                    sortTitle.textContent = `Query ${option}`;
-                    console.log(`Sorting by: Query ${option}`);
-                    break;
-            }
+            const sortInput = document.getElementById('sort');
+            sortInput.value = option;
+            const form = document.getElementById('frames-form');
+            form.submit();
         }
 
         function updateMainFrame(element, frameNumber, score, imageSrc) {
@@ -225,6 +209,8 @@
             submitButton.disabled = true;
         }
 
+		// Number of queries if queries exists, else 1
+        let num_queries = {{ queries|length if queries|length > 0 else 1 }};
         function addTextarea() {
             const queryContainer = document.getElementById('query-container');
             const newTextarea = document.createElement('div');
