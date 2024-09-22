@@ -3,7 +3,7 @@
 	<h3>Retrieve Video Frames</h3>
 	<hr>
 	<h5 data-bs-toggle="collapse" href="#InputSection" aria-controls="InputSection" role="button"> Input</h5>  
-	<form method="POST" action="/submit" onsubmit="showSpinner()" id="InputSection" class="collapse show">
+	<form method="POST" action="/submit" onsubmit="showSpinner()" id="InputSection" class="collapse show" enctype="multipart/form-data">
 		<div id="query-container">
 			{% if queries %}
 				{% for query_id, query_text in queries %}
@@ -23,6 +23,10 @@
 		</div>
 		<div class="d-grid mb-3">
 			<button type="button" class="btn btn-secondary btn-block" onclick="addTextarea()"><i class="fa-solid fa-plus"></i></button>
+		</div>
+		<div class="mb-3">
+			<label for="formFileMultiple" class="form-label">Image queries</label>
+			<input class="form-control" type="file" id="formFileMultiple" name="images[]" accept="image/*" multiple>
 		</div>
 		<div class="input-group mb-3">
 			<label for="num_frames" class="input-group-text">Limit:</label>
