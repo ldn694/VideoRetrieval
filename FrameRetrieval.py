@@ -160,14 +160,16 @@ def create_suggestion(retrieved_frames=[]):
                     max_sim = max(max_sim, combined_frames[j][3])
                 
                 max_frames_sim = [-1] * len(retrieved_frames)
+                max_frames = [-1] * len(retrieved_frames)
                 for j in range(best_suggestion[0], best_suggestion[1] + 1):
                     if combined_frames[j][3] > max_frames_sim[combined_frames[j][4]]:
                         max_frames_sim[combined_frames[j][4]] = combined_frames[j][3]
+                        max_frames[combined_frames[j][4]] = j - best_suggestion[0]
 
                 suggestions.append({
                     'video_name': combined_frames[best_suggestion[0]][0],
                     'frames': combined_frames[best_suggestion[0]:best_suggestion[1] + 1],
-                    'max_frames': max_frames_sim,
+                    'max_frames': max_frames,
                     'num_unique': max_unique_queries,
                     'max_sim': max_sim
                 })
