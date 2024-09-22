@@ -1,0 +1,86 @@
+{% block input_section %}
+<div class="col-md-3 input-section">
+	<h3>Retrieve Video Frames</h3>
+	<hr>
+	<h5 data-bs-toggle="collapse" href="#InputSection" aria-controls="InputSection" role="button"> Input</h5>  
+	<form method="POST" action="/submit" onsubmit="showSpinner()" id="InputSection" class="collapse show">
+		<div id="query-container">
+			{% if queries %}
+				{% for query_id, query_text in queries %}
+					<div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
+						<span class="input-group-text">{{ query_id }}</span>
+						<textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required>{{ query_text }}</textarea>
+						<button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+					</div>
+				{% endfor %}
+			{% else %}
+				<div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
+					<span class="input-group-text">0</span>
+					<textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
+					<button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+				</div>
+			{% endif %}
+		</div>
+		<div class="d-grid mb-3">
+			<button type="button" class="btn btn-secondary btn-block" onclick="addTextarea()"><i class="fa-solid fa-plus"></i></button>
+		</div>
+		<div class="input-group mb-3">
+			<label for="num_frames" class="input-group-text">Limit:</label>
+			<input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
+		</div>
+		<button class="btn btn-primary mb-2" type="submit" id="submit-button">Submit</button>
+		{% if execution_time %}
+			<div id="execution-time" class="alert alert-info">
+				Last run: {{ execution_time }} seconds
+			</div>
+		{% endif %}
+	</form>
+	<hr>
+	<!-- CSV Download Section -->
+	<h5 data-bs-toggle="collapse" href="#CSVSection" aria-controls="CSVSection" role="button">Download</h5>
+	<div class="collapse show" id="CSVSection">
+		<div class="input-group mb-3">
+			<label for="custom_text" class="input-group-text" style="width:5em">Answer:</label>
+			<input class="form-control" type="text" name="custom_text" id="custom_text" placeholder="Answer for QA">
+		</div>  
+		<div class="input-group mb-3">
+			<label for="file_name" class="input-group-text" style="width:5em">File:</label>
+			<input class="form-control" type="text" name="file_name" id="file_name" value="{{ csv_filename }}">
+		</div>
+		<div class="mb-3">
+			<button class="btn btn-primary" type="button" onclick="extractCSV()">Download CSV</button>
+		</div>
+	</div>
+	<hr>
+	<h5 data-bs-toggle="collapse" href="#FramesControl" aria-controls="FramesControl" role="button">Frames control</h5>
+	<div class="mb-3">
+		<p class="retrieved_frames">Total frames: {{ suggestions|length }}</p>
+	</div>
+	<div id="FramesControl" class="collapse show">
+		<h6>Custom frame</h6>
+		<div class="input-group mb-3">
+			<input type="text" id="video_name" name="video_name" 
+					class="form-control" placeholder="L04_V019" required>
+			<input type="number" id="frame_idx" name="frame_idx" 
+					class="form-control" placeholder="18104" required>
+			<button class="btn btn-primary" type="button" onclick="addFrame()"><i class="fa-solid fa-plus"></i></button>
+		</div>
+		
+		<div class="row mb-3 align-items-center">
+			<h6 class="col" style="margin-bottom:0px">Frames order</h6>
+			<div class="dropdown col">
+				<button style="width:100%" class="btn btn-outline-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+					None
+				</button>
+				<ul class="dropdown-menu" aria-labelledby="sortDropdown">
+					<li><a class="dropdown-item" href="#" onclick="sortFrame('none')">None</a></li>
+					<li><a class="dropdown-item" href="#" onclick="sortFrame('best_frame')">Best frame</a></li>
+					{% for query_id, query_text in queries %}
+						<li><a class="dropdown-item" href="#" onclick="sortFrame('{{ query_id }}')">Query {{ query_id }}</a></li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
