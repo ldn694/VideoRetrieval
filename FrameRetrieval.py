@@ -14,14 +14,17 @@ import chromadb
 import settings
 import time
 
+
 def translate_query(query):
     translator = Translator()
     translated_query = translator.translate(query, dest='en').text
     return translated_query
 
+
 def retrieve_frames(queries, folder_path, num_frames, device, model, collection):
     if not os.path.exists(folder_path):
-        folder_path = 'D:/AIC24/Data' # Change this to the path of the folder containing the data
+        # Change this to the path of the folder containing the data
+        folder_path = 'D:/AIC24/Data'
 
     start = time.time()
 
@@ -40,7 +43,7 @@ def retrieve_frames(queries, folder_path, num_frames, device, model, collection)
     print(f"shape: {text_features.shape}")
 
     # Convert the text_features to a list of list
-    
+
     results = collection.query(
         query_embeddings=text_features.tolist(),
         n_results=20000
@@ -50,7 +53,8 @@ def retrieve_frames(queries, folder_path, num_frames, device, model, collection)
     embedding_result = []
 
     for i in range(len(results['ids'])):
-        data_result.append(collection.get(ids=results['ids'][i], include = ["embeddings", "metadatas"]))
+        data_result.append(collection.get(
+            ids=results['ids'][i], include=["embeddings", "metadatas"]))
         embedding_result.append(data_result[-1]['embeddings'])
 
     print(f"inference time: {time.time() - start}")
@@ -73,10 +77,11 @@ def retrieve_frames(queries, folder_path, num_frames, device, model, collection)
     for i in range(len(queries)):
         results.append([])
         for j in range(num_frames):
-            results[-1].append({"meta_data": data_result[i]['metadatas'][sorted_indices[i, j]], "similarity": C[i, sorted_indices[i, j]].item()})
-
+            results[-1].append({"meta_data": data_result[i]['metadatas']
+                               [sorted_indices[i, j]], "similarity": C[i, sorted_indices[i, j]].item()})
 
     return results
+
 
 def convert_to_suggestion_input(top_frames):
     # top_frames is the output of retrieve_frames function
@@ -95,6 +100,7 @@ def convert_to_suggestion_input(top_frames):
             (item['similarity'], video_name, frame_idx, timestamp, file_name))
 
     return suggestions_input
+
 
 def create_suggestion(retrieved_frames=[]):
     # Assuming there are total k text queries
@@ -138,7 +144,8 @@ def create_suggestion(retrieved_frames=[]):
                     query_appearances[combined_frames[j][4]] = True
                     unique_queries += 1
                 j += 1
-            candidates[unique_queries].append((i, j - 1, end_timestamp - start_timestamp))
+            candidates[unique_queries].append(
+                (i, j - 1, end_timestamp - start_timestamp))
             i = j
         # Now we have the best suggestion for this video for each number of unique queries
         # We choose the best suggestion among these, which has the highest number of unique queries
@@ -146,10 +153,10 @@ def create_suggestion(retrieved_frames=[]):
         max_unique_queries = 0
         for i in range(len(retrieved_frames), 0, -1):
             if len(candidates[i]) > 0:
-                best_suggestions = sorted(candidates[i], key=lambda x: x[2])[:min(5, len(candidates[i]))]
+                best_suggestions = sorted(candidates[i], key=lambda x: x[2])[
+                    :min(5, len(candidates[i]))]
                 max_unique_queries = i
                 break
-
 
         if best_suggestions != None:
             # Find the max similarity score among the frames in the best suggestion
@@ -158,13 +165,15 @@ def create_suggestion(retrieved_frames=[]):
                 max_sim = -1
                 for j in range(best_suggestion[0], best_suggestion[1] + 1):
                     max_sim = max(max_sim, combined_frames[j][3])
-                
+
                 max_frames_sim = [-1] * len(retrieved_frames)
                 max_frames = [-1] * len(retrieved_frames)
                 for j in range(best_suggestion[0], best_suggestion[1] + 1):
                     if combined_frames[j][3] > max_frames_sim[combined_frames[j][4]]:
-                        max_frames_sim[combined_frames[j][4]] = combined_frames[j][3]
-                        max_frames[combined_frames[j][4]] = j - best_suggestion[0]
+                        max_frames_sim[combined_frames[j]
+                                       [4]] = combined_frames[j][3]
+                        max_frames[combined_frames[j][4]] = j - \
+                            best_suggestion[0]
 
                 suggestions.append({
                     'video_name': combined_frames[best_suggestion[0]][0],
@@ -181,9 +190,13 @@ def create_suggestion(retrieved_frames=[]):
 
     return suggestions
 
-def retrieve_frames_multiple_queries(queries, folder_path, num_frames, device, model, collection):
+
+def retrieve_frames_multiple_queries(queries, folder_path,
+                                     num_frames, device, model,
+                                     collection, image_paths):
     suggestions_inputs = []
-    list_top_frames = retrieve_frames(queries, folder_path, num_frames, device, model, collection)
+    list_top_frames = retrieve_frames(
+        queries, folder_path, num_frames, device, model, collection)
 
     for top_frames in list_top_frames:
         suggestions_input = convert_to_suggestion_input(
@@ -194,6 +207,7 @@ def retrieve_frames_multiple_queries(queries, folder_path, num_frames, device, m
     # shorten the len(suggestions) to num_frames
     suggestions = suggestions[:num_frames]
     return suggestions
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Video Retrieval')
@@ -216,7 +230,3 @@ if __name__ == '__main__':
     suggestions = create_suggestion(suggestions_inputs)
     with open('suggestions.json', 'w') as f:
         json.dump(suggestions, f, indent=4)
-
-
-
-

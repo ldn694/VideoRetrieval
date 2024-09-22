@@ -71,7 +71,7 @@ def submit():
 
     # Create suggestions for clips
     suggestions = retrieve_frames_multiple_queries(
-        queries, folder_path, num_frames, device, model, collection)
+        queries, folder_path, num_frames, device, model, collection, file_paths)
 
     # TODO: Load all the keyframes for the suggestions
     for suggestion in suggestions:
