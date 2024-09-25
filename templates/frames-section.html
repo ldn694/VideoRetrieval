@@ -13,7 +13,9 @@
 						</div>
 					</div>
 					<img class="thumbnail" 
-						src="data:image/jpeg;base64,{{ suggestion.frames[suggestion.main_frame][5] }}" onclick="openModal('{{ suggestion.frames[suggestion.main_frame][5] }}')">
+						type="button"
+						src="data:image/jpeg;base64,{{ suggestion.frames[suggestion.main_frame][5] }}" 
+						onclick='openModal({{ suggestion.frames | tojson | safe }})'>
 					<div class="card-body suggestion-info">
 						<p class="sim mb-1">Sim: {{ suggestion.frames[suggestion.main_frame][3] | round(6) }}</p>
 						<p class="main-frame mb-1">Frame: {{ suggestion.frames[suggestion.main_frame][1] }}</p>

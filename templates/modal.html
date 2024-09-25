@@ -1,7 +1,19 @@
 {% block modal %}
 <!-- The Modal -->
 <div id="myModal" class="modal">
-	<span class="close" onclick="closeModal()">&times;</span>
-	<img class="modal-content" id="modalImg">
+	<div class="modal-dialog" style="max-width:70%">
+		<div class="modal-content">
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 class="modal-title">Modal Heading</h4>
+				<button type="button" class="btn-close" onClick="closeModal()"></button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+			</div>
+
+		</div>
+  </div>
 </div>
 {% endblock %}
