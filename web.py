@@ -36,7 +36,8 @@ def index():
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
     return render_template('index.html',
                            num_frames=num_frames,
-                           csv_filename=csv_filename)
+                           csv_filename=csv_filename,
+                           sort="none")
 
 
 @app.route('/submit', methods=['POST'])
@@ -117,7 +118,7 @@ def submit():
         num_frames=num_frames,
         csv_filename=csv_filename,
         execution_time=execution_time,
-        sort_by="none"
+        sort="none"
     )
 
 

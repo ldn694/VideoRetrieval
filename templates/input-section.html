@@ -76,7 +76,7 @@
 				<div class="dropdown col">
 					<input class="form-control" type="hidden" name="sort" id="sort" value="{{ sort }}">
 					<button style="width:100%" class="btn btn-outline-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
-						{% if sort == None %}
+						{% if sort == "none" %}
 							None
 						{% elif sort == 'best_frame' %}
 							Best frame
