@@ -17,6 +17,7 @@ import chromadb
 
 app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
+app.config['UPLOAD_FOLDER'] = 'uploads/'
 
 # Global model variables (loaded once)
 # device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -35,7 +36,8 @@ def index():
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
     return render_template('index.html',
                            num_frames=num_frames,
-                           csv_filename=csv_filename)
+                           csv_filename=csv_filename,
+                           sort="none")
 
 
 @app.route('/submit', methods=['POST'])
@@ -48,6 +50,21 @@ def submit():
     folder_path = settings.DATA_PATH
     num_frames = int(request.form.get('num_frames'))
     csv_filename = request.form.get('file_name', 'query-p1-1-kis.csv')
+    uploaded_files = request.files.getlist('images[]')
+    db_mode = request.form.get('db_mode')
+    print(f"DB Mode: {db_mode}")
+    # if upload folder does not exist, create it
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+    # Process the uploaded files
+    file_paths = []
+    for file in uploaded_files:
+        if file:
+            file_path = os.path.join(
+                app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(file_path)
+            file_paths.append(file_path)
+            print("Uploaded File:", file_path)
 
     # Process the form data as needed
     print(f"Queries: {queries}, Number of Frames: {num_frames}")
@@ -56,7 +73,7 @@ def submit():
 
     # Create suggestions for clips
     suggestions = retrieve_frames_multiple_queries(
-        queries, folder_path, num_frames, device, model, collection)
+        queries, folder_path, num_frames, device, model, collection, file_paths, preprocess, db_mode)
 
     # TODO: Load all the keyframes for the suggestions
     for suggestion in suggestions:
@@ -91,6 +108,7 @@ def submit():
 
     session['queries'] = queries
     session['execution_time'] = execution_time
+    session['db_mode'] = db_mode
     # save suggestions to a json file
     with open('suggestions.json', 'w') as f:
         json.dump(suggestions, f)
@@ -103,7 +121,8 @@ def submit():
         num_frames=num_frames,
         csv_filename=csv_filename,
         execution_time=execution_time,
-        sort_by="none"
+        db_mode=db_mode,
+        sort="none"
     )
 
 
@@ -237,6 +256,7 @@ def sort():
                            csv_filename=csv_filename,
                            video_urls=load_video_urls(),
                            execution_time=execution_time,
+                           db_mode=session.get('db_mode', 'none'),
                            sort=sort)
 
 

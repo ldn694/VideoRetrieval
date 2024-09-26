@@ -29,7 +29,6 @@
         }
         .input-section {
             padding: 10px;
-            background-color: #f4f4f4;
             border-right: 1px solid #ccc;
         }
         .right-section {
@@ -61,12 +60,6 @@
             overflow: auto;
             background-color: rgb(0, 0, 0);
             background-color: rgba(0, 0, 0, 0.9);
-        }
-        .modal-content {
-            margin: auto;
-            display: block;
-            width: 80%;
-            max-width: 700px;
         }
         .close {
             position: absolute;
@@ -150,6 +143,71 @@
         // Drag-and-Drop Logic
         let dragged;
 
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const themeSwitch = document.getElementById('theme');
+            const body = document.body;
+            const html = document.documentElement;
+            const inputSection = document.querySelector('.input-section');
+            const DBDropdown = document.getElementById('DBDropdown');
+
+            // Load the dark mode preference from local storage
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                inputSection.classList.remove('text-bg-light');
+                inputSection.classList.add('text-bg-dark');
+
+                DBDropdown.classList.remove('btn-outline-dark');
+                DBDropdown.classList.add('btn-outline-light');
+
+                body.classList.add('dark-mode');
+                html.setAttribute('data-bs-theme', 'dark');
+                themeSwitch.checked = true;
+            }
+
+            themeSwitch.addEventListener('click', () => {
+                if (themeSwitch.checked) {
+                    inputSection.classList.remove('text-bg-light');
+                    inputSection.classList.add('text-bg-dark');
+
+                    DBDropdown.classList.remove('btn-outline-dark');
+                    DBDropdown.classList.add('btn-outline-light');
+
+                    body.classList.add('dark-mode');
+                    html.setAttribute('data-bs-theme', 'dark');
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    inputSection.classList.remove('text-bg-dark');
+                    inputSection.classList.add('text-bg-light');
+
+                    DBDropdown.classList.remove('btn-outline-light');
+                    DBDropdown.classList.add('btn-outline-dark');
+
+                    body.classList.remove('dark-mode');
+                    html.removeAttribute('data-bs-theme');
+                    localStorage.setItem('darkMode', 'disabled');
+                }
+            });
+        });
+
+        function changeDBMode(mode) {
+            const dbModeInput = document.getElementById('db_mode');
+            const dbModeButton = document.getElementById('DBDropdown');
+            dbModeInput.value = mode;
+            switch (mode) {
+                case 'fast':
+                    dbModeButton.textContent = 'Fast';
+                    break;
+                case 'standard':
+                    dbModeButton.textContent = 'Standard';
+                    break;
+                case 'slow':
+                    dbModeButton.textContent = 'Slow';
+                    break;
+                default:
+                    dbModeButton.textContent = 'Standard';
+            }
+        }
+
         function sortFrame(option) {
             const sortInput = document.getElementById('sort');
             sortInput.value = option;
@@ -157,7 +215,7 @@
             form.submit();
         }
 
-        function updateMainFrame(element, frameNumber, score, imageSrc) {
+        function updateMainFrame(element, frameNumber, score, imageSrc, frames) {
             // Find the closest card element
             const card = element.closest('.card');
 
@@ -173,8 +231,9 @@
             // Update the image source
             const imageElement = card.querySelector('.thumbnail');
             imageElement.src = `data:image/jpeg;base64,${imageSrc}`;
+            imageElement.type = 'button';
             imageElement.onclick = function() {
-                openModal(imageSrc);
+                openModal(frames);
             };
         }
 
@@ -286,12 +345,34 @@
         }
 
         // Modal Logic
-        function openModal(imageSrc) {
+        function openModal(frames) {
             var modal = document.getElementById("myModal");
-            var modalImg = document.getElementById("modalImg");
+            var modelTitle = document.querySelector('.modal-title');
+            var modalBody = document.querySelector('.modal-body');
+            // var sim = frames[0][3];
+            // var frame = frames[0][1];
+            const video = frames[0][0];
+            // var query_id = frames[0][4];
 
             modal.style.display = "block";
-            modalImg.src = "data:image/jpeg;base64," + imageSrc;
+            modelTitle.textContent = `${video}`;
+            modalBody.innerHTML = '';
+            // loop through the frames and add them to the modal body
+            for (let i = 0; i < frames.length; i++) {
+                const frame = frames[i];
+                modalBody.innerHTML += `
+                    <img src="data:image/jpeg;base64,${frame[5]}" style="width:100%">
+                    <ul>
+                        <li>Sim: ${frame[3]}</li>
+                        <li>Frame: ${frame[1]}</li>
+                        <li>Timestamp: ${frame[2]}s</li>
+                        <li>Query ID: ${frame[4]}</li>
+                    </ul>
+                `;
+                if (i < frames.length - 1) {
+                    modalBody.innerHTML += '<hr>';
+                }
+            }
         }
 
         function closeModal() {

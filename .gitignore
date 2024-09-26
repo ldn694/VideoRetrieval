@@ -4,4 +4,5 @@ query_answer.csv
 local_settings.py
 __pycache__/
 downloads/*
+uploads/*
 suggestions.json
