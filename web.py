@@ -25,6 +25,15 @@ device = "cpu"
 model, _, preprocess = open_clip.create_model_and_transforms(
     'MobileCLIP-B', pretrained='datacompdr_lt', device=device)
 
+transparent_image = None
+
+def getTransparentImage():
+    global transparent_image
+    if transparent_image is None:
+        # Create a 1x1 image with RGBA mode and fully transparent (0, 0, 0, 0)
+        transparent_image = Image.new("RGB", (1, 1), (0, 0, 0))
+    return transparent_image
+
 chroma_client = chromadb.PersistentClient(path=os.path.join(
     settings.DATA_PATH, 'AIC_db'))
 collection = chroma_client.get_collection("image_embeddings")
@@ -52,6 +61,8 @@ def submit():
     csv_filename = request.form.get('file_name', 'query-p1-1-kis.csv')
     uploaded_files = request.files.getlist('images[]')
     db_mode = request.form.get('db_mode')
+    show_image = request.form.get('show_image')
+    is_show_image = show_image is not None
     print(f"DB Mode: {db_mode}")
     # if upload folder does not exist, create it
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -82,13 +93,21 @@ def submit():
         for i, frame in enumerate(frames):
             video_name = frame[0]
             file_name = frame[5]
-            # Load the image
-            img = Image.open(os.path.join(
-                folder_path, 'keyframes', video_name, file_name))
-            # Convert image to base64
-            buffered = io.BytesIO()
-            img.save(buffered, format="JPEG")
-            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+            if is_show_image:
+                # Load the image
+                img = Image.open(os.path.join(
+                    folder_path, 'keyframes', video_name, file_name))
+                # Convert image to base64
+                buffered = io.BytesIO()
+                img.save(buffered, format="JPEG")
+                img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+            else:
+                #  # Generate a transparent image and convert it to base64
+                # img = getTransparentImage()
+                # buffered = io.BytesIO()
+                # img.save(buffered, format="JPEG")  # Using PNG to retain transparency
+                # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                img_str = ""
             # Convert the tuple to a list, modify it, and convert it back to a tuple
             frame_list = list(frame)
             # Replace the file name with the base64 image
