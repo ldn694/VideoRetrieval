@@ -32,7 +32,8 @@
 							<ul class="dropdown-menu">
 							{% for frame in suggestion.frames %}
 								<li><h5 class="dropdown-header">Frame {{ frame[1] }}</h5></li>
-								<li class="dropdown-item" onclick="updateMainFrame(this, '{{ frame[1] }}', '{{ frame[3] }}', '{{ frame[5] }}')">
+								<li class="dropdown-item" 
+									onclick='updateMainFrame(this, "{{ frame[1] }}", "{{ frame[3] }}", "{{ frame[5] }}", {{ suggestion.frames | tojson | safe }})'>
 									Score {{ frame[3] }} <br>
 									Timestamp: {{ frame[2] }}s <br>
 									Query ID: {{ frame[4] }}

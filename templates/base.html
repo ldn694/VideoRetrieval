@@ -151,7 +151,7 @@
             form.submit();
         }
 
-        function updateMainFrame(element, frameNumber, score, imageSrc) {
+        function updateMainFrame(element, frameNumber, score, imageSrc, frames) {
             // Find the closest card element
             const card = element.closest('.card');
 
@@ -167,8 +167,9 @@
             // Update the image source
             const imageElement = card.querySelector('.thumbnail');
             imageElement.src = `data:image/jpeg;base64,${imageSrc}`;
+            imageElement.type = 'button';
             imageElement.onclick = function() {
-                openModal(imageSrc);
+                openModal(frames);
             };
         }
 
