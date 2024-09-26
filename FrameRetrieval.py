@@ -255,9 +255,11 @@ def create_suggestion(retrieved_frames=[]):
     return suggestions
 
 
+# @db_mode: 'slow' or 'fast' or 'standard'
 def retrieve_frames_multiple_queries(queries, folder_path,
                                      num_frames, device, model,
-                                     collection, image_paths, preprocess):
+                                     collection, image_paths, preprocess,
+                                     db_mode):
     suggestions_inputs = []
     list_top_frames = retrieve_frames(
         queries, folder_path, num_frames, device, model, collection)
