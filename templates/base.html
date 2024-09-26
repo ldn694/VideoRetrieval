@@ -144,6 +144,24 @@
         let dragged;
 
         document.addEventListener('DOMContentLoaded', (event) => {
+            const showImageElement = document.getElementById('show_image');
+            const showImage = localStorage.getItem('show_image');
+            showImageElement.addEventListener('change', () => {
+                if (showImageElement.checked) {
+                    localStorage.setItem('show_image', 'enabled');
+                } else {
+                    localStorage.setItem('show_image', 'disabled');
+                }
+            });
+            if (showImage === 'enabled') {
+                showImageElement.checked = true;
+            }
+            else {
+                showImageElement.checked = false;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', (event) => {
             const themeSwitch = document.getElementById('theme');
             const body = document.body;
             const html = document.documentElement;
@@ -229,12 +247,14 @@
             simElement.textContent = `Sim: ${parseFloat(score).toFixed(6)}`;
 
             // Update the image source
-            const imageElement = card.querySelector('.thumbnail');
-            imageElement.src = `data:image/jpeg;base64,${imageSrc}`;
-            imageElement.type = 'button';
-            imageElement.onclick = function() {
-                openModal(frames);
-            };
+            if (imageSrc) {
+                const imageElement = card.querySelector('.thumbnail');
+                imageElement.src = `data:image/jpeg;base64,${imageSrc}`;
+                imageElement.type = 'button';
+                imageElement.onclick = function() {
+                    openModal(frames);
+                };
+            }
         }
 
         function deleteCard(button) {

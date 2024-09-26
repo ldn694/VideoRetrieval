@@ -81,7 +81,7 @@ def retrieve_frames_from_image(image_paths, folder_path, num_frames, device, mod
     results = []
     for i in range(len(image_paths)):
         results.append([])
-        for j in range(num_frames):
+        for j in range(num_frames * 2):
             results[-1].append({"meta_data": data_result[i]['metadatas']
                                [sorted_indices[i, j]], "similarity": C[i, sorted_indices[i, j]].item()})
 
@@ -146,7 +146,7 @@ def retrieve_frames(queries, folder_path, num_frames, device, model, collection,
     results = []
     for i in range(len(queries)):
         results.append([])
-        for j in range(num_frames):
+        for j in range(num_frames * 2):
             results[-1].append({"meta_data": data_result[i]['metadatas']
                                [sorted_indices[i, j]], "similarity": C[i, sorted_indices[i, j]].item()})
 
