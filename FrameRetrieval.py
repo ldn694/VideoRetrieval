@@ -20,8 +20,71 @@ def translate_query(query):
     translated_query = translator.translate(query, dest='en').text
     return translated_query
 
+def retrieve_frames_from_image(image_paths, folder_path, num_frames, device, model, collection, preprocess):
+    if len(image_paths) == 0:
+        return []
+    if not os.path.exists(folder_path):
+        # Change this to the path of the folder containing the data
+        folder_path = 'D:/AIC24/Data'
+
+    start = time.time()
+    
+    # We load the images
+    images = []
+    for image_path in image_paths:
+        image = preprocess(Image.open(image_path)).unsqueeze(0)
+        images.append(image)
+    
+    with torch.no_grad():
+        image_features = model.encode_image(torch.cat(images).to(device)).float()
+        image_features /= image_features.norm(dim=-1, keepdim=True)
+
+    print(f"shape: {image_features.shape}")
+
+    # Convert the image_features to a list of list
+    results = collection.query(
+        query_embeddings=image_features.tolist(),
+        n_results=20000
+    )
+
+    data_result = []
+    embedding_result = []
+
+    for i in range(len(results['ids'])):
+        data_result.append(collection.get(
+            ids=results['ids'][i], include=["embeddings", "metadatas"]))
+        embedding_result.append(data_result[-1]['embeddings'])
+
+    print(f"inference time: {time.time() - start}")
+
+    A = torch.FloatTensor(embedding_result)
+    B = image_features
+    C = torch.matmul(A, B.unsqueeze(-1)).squeeze(-1)
+
+    print(A.shape)
+    print(B.shape)
+    print(C.shape)
+
+    # C has the shape of (q, n) where q is the number of queries and n is the number of results
+    # C[i, j] is the similarity score between query i and result j
+    # sort the results based on the similarity score
+
+    sorted_indices = torch.argsort(C, dim=1, descending=True)
+
+    results = []
+    for i in range(len(image_paths)):
+        results.append([])
+        for j in range(num_frames):
+            results[-1].append({"meta_data": data_result[i]['metadatas']
+                               [sorted_indices[i, j]], "similarity": C[i, sorted_indices[i, j]].item()})
+
+    return results
+    
+
 
 def retrieve_frames(queries, folder_path, num_frames, device, model, collection):
+    if len(queries) == 0:
+        return []
     if not os.path.exists(folder_path):
         # Change this to the path of the folder containing the data
         folder_path = 'D:/AIC24/Data'
@@ -109,6 +172,7 @@ def create_suggestion(retrieved_frames=[]):
     # We now create a new list, each element is (video_name, frame_number, timestamp, similarity_score, query_number, file_name)
     # query_number is the index of the query in the list of queries (0-based index)
 
+    print(f"Number of queries: {len(retrieved_frames)}")
     combined_frames = []
     for query_number, frames in enumerate(retrieved_frames):
         for frame in frames:
@@ -193,12 +257,19 @@ def create_suggestion(retrieved_frames=[]):
 
 def retrieve_frames_multiple_queries(queries, folder_path,
                                      num_frames, device, model,
-                                     collection, image_paths):
+                                     collection, image_paths, preprocess):
     suggestions_inputs = []
     list_top_frames = retrieve_frames(
         queries, folder_path, num_frames, device, model, collection)
+    list_top_frames_from_image = retrieve_frames_from_image(
+        image_paths, folder_path, num_frames, device, model, collection, preprocess)
 
     for top_frames in list_top_frames:
+        suggestions_input = convert_to_suggestion_input(
+            top_frames)
+        suggestions_inputs.append(suggestions_input)
+
+    for top_frames in list_top_frames_from_image:
         suggestions_input = convert_to_suggestion_input(
             top_frames)
         suggestions_inputs.append(suggestions_input)
