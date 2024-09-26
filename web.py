@@ -51,6 +51,8 @@ def submit():
     num_frames = int(request.form.get('num_frames'))
     csv_filename = request.form.get('file_name', 'query-p1-1-kis.csv')
     uploaded_files = request.files.getlist('images[]')
+    db_mode = request.form.get('db_mode')
+    print(f"DB Mode: {db_mode}")
     # if upload folder does not exist, create it
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -71,7 +73,7 @@ def submit():
 
     # Create suggestions for clips
     suggestions = retrieve_frames_multiple_queries(
-        queries, folder_path, num_frames, device, model, collection, file_paths)
+        queries, folder_path, num_frames, device, model, collection, file_paths, db_mode)
 
     # TODO: Load all the keyframes for the suggestions
     for suggestion in suggestions:
@@ -106,6 +108,7 @@ def submit():
 
     session['queries'] = queries
     session['execution_time'] = execution_time
+    session['db_mode'] = db_mode    
     # save suggestions to a json file
     with open('suggestions.json', 'w') as f:
         json.dump(suggestions, f)
@@ -118,6 +121,7 @@ def submit():
         num_frames=num_frames,
         csv_filename=csv_filename,
         execution_time=execution_time,
+        db_mode=db_mode,
         sort="none"
     )
 
@@ -252,6 +256,7 @@ def sort():
                            csv_filename=csv_filename,
                            video_urls=load_video_urls(),
                            execution_time=execution_time,
+                           db_mode=session.get('db_mode', 'none'),
                            sort=sort)
 
 

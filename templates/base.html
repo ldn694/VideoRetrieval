@@ -144,6 +144,25 @@
         // Drag-and-Drop Logic
         let dragged;
 
+        function changeDBMode(mode) {
+            const dbModeInput = document.getElementById('db_mode');
+            const dbModeButton = document.getElementById('DBDropdown');
+            dbModeInput.value = mode;
+            switch (mode) {
+                case 'fast':
+                    dbModeButton.textContent = 'Fast';
+                    break;
+                case 'standard':
+                    dbModeButton.textContent = 'Standard';
+                    break;
+                case 'slow':
+                    dbModeButton.textContent = 'Slow';
+                    break;
+                default:
+                    dbModeButton.textContent = 'Standard';
+            }
+        }
+
         function sortFrame(option) {
             const sortInput = document.getElementById('sort');
             sortInput.value = option;

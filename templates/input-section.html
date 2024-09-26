@@ -32,6 +32,28 @@
 			<label for="num_frames" class="input-group-text">Limit:</label>
 			<input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
 		</div>
+		{% if db_mode %}
+			<input class="form-control" type="hidden" name="db_mode" id="db_mode" value="{{ db_mode }}">
+		{% else %}
+			<input class="form-control" type="hidden" name="db_mode" id="db_mode" value="standard">
+		{% endif %}
+		<div class="input-group mb-3" style="width:100%">
+			<label for="db_mode" class="input-group-text">DB mode:</label>
+			<button class="btn btn-outline-secondary dropdown-toggle" type="button" id="DBDropdown" data-bs-toggle="dropdown">
+				{% if db_mode == "slow" %}
+					Slow
+				{% elif db_mode == 'fast' %}
+					Fast
+				{% else %}
+					Standard
+				{% endif %}
+			</button>
+			<ul class="dropdown-menu" aria-labelledby="DBDropdown">
+				<li><a class="dropdown-item" href="#" onclick="changeDBMode('fast')">Fast</a></li>
+				<li><a class="dropdown-item" href="#" onclick="changeDBMode('standard')">Standard</a></li>
+				<li><a class="dropdown-item" href="#" onclick="changeDBMode('slow')">Slow</a></li>
+			</ul>
+		</div>
 		<button class="btn btn-primary mb-2" type="submit" id="submit-button">Submit</button>
 		{% if execution_time %}
 			<div id="execution-time" class="alert alert-info">
