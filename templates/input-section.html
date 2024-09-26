@@ -1,5 +1,5 @@
 {% block input_section %}
-<div class="col-md-3 input-section">
+<div class="col-md-3 input-section text-bg-light">
 	<h3>Retrieve Video Frames</h3>
 	<hr>
 	<h5 data-bs-toggle="collapse" href="#InputSection" aria-controls="InputSection" role="button"> Input</h5>  
@@ -39,7 +39,9 @@
 		{% endif %}
 		<div class="input-group mb-3" style="width:100%">
 			<label for="db_mode" class="input-group-text">DB mode:</label>
-			<button class="btn btn-outline-secondary dropdown-toggle" type="button" id="DBDropdown" data-bs-toggle="dropdown">
+			<button class="btn btn-outline-dark dropdown-toggle" 
+					type="button" id="DBDropdown" data-bs-toggle="dropdown"
+					style="z-index: 1;">
 				{% if db_mode == "slow" %}
 					Slow
 				{% elif db_mode == 'fast' %}
@@ -116,6 +118,15 @@
 				</div>
 			</div>
 		</form>
+	</div>
+	<!-- Appearance -->
+	<hr>
+	<h5 data-bs-toggle="collapse" href="#Appearance" aria-controls="Appearance" role="button">Appearance</h5>
+	<div id="Appearance" class="collapse show">
+		<div class="form-check form-switch">
+			<input class="form-check-input" type="checkbox" id="theme" name="darkmode">
+			<label class="form-check-label" for="theme">Dark Mode</label>
+		</div>
 	</div>
 </div>
 {% endblock %}

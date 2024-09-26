@@ -108,7 +108,7 @@ def submit():
 
     session['queries'] = queries
     session['execution_time'] = execution_time
-    session['db_mode'] = db_mode    
+    session['db_mode'] = db_mode
     # save suggestions to a json file
     with open('suggestions.json', 'w') as f:
         json.dump(suggestions, f)
