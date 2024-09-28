@@ -421,7 +421,7 @@
         // Function to extract the current order and send it to the server
         function extractCSV() {
             console.log('Extracting CSV...');
-            const frames = document.querySelectorAll('.suggestion');
+            var frames = document.querySelectorAll('.suggestion');
             const order = [];
             const customText = document.getElementById('custom_text').value;
             const fileName = document.getElementById('file_name').value;
