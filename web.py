@@ -36,7 +36,7 @@ def getTransparentImage():
 
 chroma_client = chromadb.PersistentClient(path=os.path.join(
     settings.DATA_PATH, 'AIC_db'))
-collection = chroma_client.get_collection("image_embeddings")
+collection = chroma_client.get_collection("image_embeddings_new")
 
 
 @app.route('/')
