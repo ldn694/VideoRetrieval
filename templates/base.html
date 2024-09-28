@@ -29,7 +29,7 @@
         }
         .input-section {
             padding: 10px;
-            border-right: 1px solid #ccc;
+            border-right: 1px solid var(--bs-border-color-translucent);
         }
         .right-section {
             padding: 10px;
@@ -160,7 +160,7 @@
                         accordionItem.innerHTML = `
                             <h2 class="accordion-header" id="heading${index}">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}" aria-expanded="false" aria-controls="collapse${index}">
-                                    #${index} - ${file.name}
+                                    #${index + num_queries} - ${file.name}
                                 </button>
                             </h2>
                             <div id="collapse${index}" class="accordion-collapse collapse" aria-labelledby="heading${index}" data-bs-parent="#imageListAccordion">
@@ -176,6 +176,7 @@
 
                     // Read the file as a data URL
                     reader.readAsDataURL(file);
+                    updateQueryNumbers();
                 });
             });
 
@@ -418,9 +419,16 @@
 
 		function updateQueryNumbers() {
 			const queryNumbers = document.querySelectorAll('.textarea-container .input-group-text');
+            let globalIndex = 0;
 			queryNumbers.forEach((queryNumber, index) => {
-				queryNumber.textContent = index;
+				queryNumber.textContent = globalIndex;
+                globalIndex += 1;
 			});
+            const imageNumbers = document.querySelectorAll('.accordion-item .accordion-button');
+            imageNumbers.forEach((imageNumber, index) => {
+                imageNumber.textContent = `#${globalIndex} - ${imageNumber.textContent.split(' - ')[1]}`;
+                globalIndex += 1;
+            });
 		}
 
         function updateRetrievedFramesCount() {
@@ -456,6 +464,7 @@
                 <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
             `;
             queryContainer.appendChild(newTextarea);
+            updateQueryNumbers();
             num_queries += 1;
         }
 

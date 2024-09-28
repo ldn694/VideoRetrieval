@@ -76,7 +76,7 @@ def submit():
     else:
         keyframes_name = 'keyframes'
         collection = chroma_client.get_collection("image_embeddings")
-    print(f"DB Mode: {db_mode}")
+
     # if upload folder does not exist, create it
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -91,7 +91,6 @@ def submit():
             print("Uploaded File:", file_path)
 
     # Process the form data as needed
-    print(f"Queries: {queries}, Number of Frames: {num_frames}")
     session['num_frames'] = num_frames  # Save num_frames to session
     session['csv_filename'] = csv_filename
 
@@ -144,18 +143,12 @@ def submit():
     session['queries'] = queries
     session['execution_time'] = execution_time
     session['db_mode'] = db_mode
+    session['image_paths'] = file_paths
     # save suggestions to a json file
     with open('suggestions.json', 'w') as f:
         json.dump(suggestions, f)
 
-    image_queries = []
-    for i, file_path in enumerate(file_paths):
-        img = Image.open(file_path)
-        buffered = io.BytesIO()
-        img.save(buffered, format="JPEG")
-        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        file_name = os.path.basename(file_path)
-        image_queries.append({"index": i, "name": file_name, "image": img_str})
+    image_queries = get_img_str_from_paths(file_paths, len(queries))
 
     return render_template(
         'index.html',
@@ -184,6 +177,21 @@ def find_best_frame(frames):
     # Find the frame with the highest similarity score
     best_frame = max(frames, key=lambda x: x[3])
     return best_frame
+
+
+def get_img_str_from_paths(file_paths, num_text_queries):
+    image_queries = []
+    for i, file_path in enumerate(file_paths):
+        img = Image.open(file_path)
+        # resize the image to 224x224
+        img.thumbnail((224, 224))
+        buffered = io.BytesIO()
+        img.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        file_name = os.path.basename(file_path)
+        image_queries.append(
+            {"index": i + num_text_queries, "name": file_name, "image": img_str})
+    return image_queries
 
 
 @app.route('/download_csv', methods=['POST'])
@@ -282,7 +290,9 @@ def sort():
     num_frames = session.get('num_frames', 100)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
     queries = session.get('queries', [])
+    file_paths = session.get('image_paths', [])
     execution_time = session.get('execution_time', None)
+    image_queries = get_img_str_from_paths(file_paths, len(queries))
 
     if sort == 'none':
         pass
@@ -297,6 +307,7 @@ def sort():
     suggestions = sorted(suggestions, key=suggestion_sim, reverse=True)
     return render_template('index.html',
                            queries=queries,
+                           image_queries=image_queries,
                            suggestions=suggestions,
                            num_frames=num_frames,
                            csv_filename=csv_filename,
