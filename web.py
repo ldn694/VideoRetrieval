@@ -183,8 +183,8 @@ def get_img_str_from_paths(file_paths, num_text_queries):
     image_queries = []
     for i, file_path in enumerate(file_paths):
         img = Image.open(file_path)
-        # resize the image to 224x224
-        img.thumbnail((224, 224))
+        # resize the image to 1280 width while keeping the aspect ratio
+        img.thumbnail((1280, 1280))
         buffered = io.BytesIO()
         img.save(buffered, format="JPEG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
