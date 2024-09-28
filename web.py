@@ -141,9 +141,19 @@ def submit():
     with open('suggestions.json', 'w') as f:
         json.dump(suggestions, f)
 
+    image_queries = []
+    for i, file_path in enumerate(file_paths):
+        img = Image.open(file_path)
+        buffered = io.BytesIO()
+        img.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        file_name = os.path.basename(file_path)
+        image_queries.append({"index": i, "name": file_name, "image": img_str})
+
     return render_template(
         'index.html',
         queries=queries,
+        image_queries=image_queries,
         suggestions=suggestions,
         video_urls=video_urls,
         num_frames=num_frames,
