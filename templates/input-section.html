@@ -138,7 +138,8 @@
 					<ul class="dropdown-menu" aria-labelledby="sortDropdown">
 						<li><a class="dropdown-item" href="#" onclick="sortFrame('none')">None</a></li>
 						<li><a class="dropdown-item" href="#" onclick="sortFrame('best_frame')">Best frame</a></li>
-						{% for query_id, query_text in queries %}
+						{% set total_queries = queries|length + image_queries|length %}
+						{% for query_id in range(total_queries) %}
 							<li><a class="dropdown-item" href="#" onclick="sortFrame('{{ query_id }}')">Query {{ query_id }}</a></li>
 						{% endfor %}
 					</ul>

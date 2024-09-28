@@ -14,6 +14,7 @@ import chromadb
 import settings
 import time
 
+
 def get_db_num_query_results(db_mode):
     if db_mode == 'slow':
         return 100000
@@ -22,10 +23,12 @@ def get_db_num_query_results(db_mode):
     else:
         return 20000
 
+
 def translate_query(query):
     translator = Translator()
     translated_query = translator.translate(query, dest='en').text
     return translated_query
+
 
 def retrieve_frames_from_image(image_paths, folder_path, num_frames, device, model, collection, preprocess, db_mode):
     if len(image_paths) == 0:
@@ -35,15 +38,16 @@ def retrieve_frames_from_image(image_paths, folder_path, num_frames, device, mod
         folder_path = 'D:/AIC24/Data'
 
     start = time.time()
-    
+
     # We load the images
     images = []
     for image_path in image_paths:
         image = preprocess(Image.open(image_path)).unsqueeze(0)
         images.append(image)
-    
+
     with torch.no_grad():
-        image_features = model.encode_image(torch.cat(images).to(device)).float()
+        image_features = model.encode_image(
+            torch.cat(images).to(device)).float()
         image_features /= image_features.norm(dim=-1, keepdim=True)
 
     print(f"shape: {image_features.shape}")
@@ -51,7 +55,7 @@ def retrieve_frames_from_image(image_paths, folder_path, num_frames, device, mod
     # Convert the image_features to a list of list
     results = collection.query(
         query_embeddings=image_features.tolist(),
-        n_results = get_db_num_query_results(db_mode)
+        n_results=get_db_num_query_results(db_mode)
     )
 
     data_result = []
@@ -86,7 +90,6 @@ def retrieve_frames_from_image(image_paths, folder_path, num_frames, device, mod
                                [sorted_indices[i, j]], "similarity": C[i, sorted_indices[i, j]].item()})
 
     return results
-    
 
 
 def retrieve_frames(queries, folder_path, num_frames, device, model, collection, db_mode):
@@ -116,7 +119,7 @@ def retrieve_frames(queries, folder_path, num_frames, device, model, collection,
 
     results = collection.query(
         query_embeddings=text_features.tolist(),
-        n_results = get_db_num_query_results(db_mode)
+        n_results=get_db_num_query_results(db_mode)
     )
 
     data_result = []
@@ -272,7 +275,12 @@ def retrieve_frames_multiple_queries(queries, folder_path,
         queries, folder_path, num_frames, device, model, collection, db_mode)
     list_top_frames_from_image = retrieve_frames_from_image(
         image_paths, folder_path, num_frames, device, model, collection, preprocess, db_mode)
-    
+
+    print("Text queries: ", queries)
+    print("Image queries: ", image_paths)
+    print("Number of frames: ", num_frames)
+    print(f"DB Mode: {db_mode}")
+
     if collection.name == 'image_embeddings':
         len_file_name = 7
     else:
