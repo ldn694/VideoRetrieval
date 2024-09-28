@@ -22,6 +22,14 @@ DATA_PATH = 'E:/AIC2024/Data'
 
 ## How to run
 
+First, open a terminal and run the following command to start the server
+
+```
+python hosting.py
+```
+
+Then, open another terminal and run the following command to start the web app
+
 ```
 python web.py
 ```
@@ -37,10 +45,12 @@ folder_path
 |-------------------...
 |-----------L01_V002
 |-----------....
-|--MobileClip
-|-----------L01_V001.pt
-|-----------L01_V002.pt
-|-----------...
+|--keyframes_new
+|-----------L01_V001
+|-------------------00001.jpg
+|-------------------...
+|-----------L01_V002
+|-----------....
 |--media-info
 |-----------L01_V001.json
 |-----------L01_V002.json
