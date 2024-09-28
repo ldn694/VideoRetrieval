@@ -27,12 +27,14 @@ model, _, preprocess = open_clip.create_model_and_transforms(
 
 transparent_image = None
 
+
 def getTransparentImage():
     global transparent_image
     if transparent_image is None:
         # Create a 1x1 image with RGBA mode and fully transparent (0, 0, 0, 0)
         transparent_image = Image.new("RGB", (1, 1), (0, 0, 0))
     return transparent_image
+
 
 chroma_client = chromadb.PersistentClient(path=os.path.join(
     settings.DATA_PATH, 'AIC_db'))
@@ -175,6 +177,7 @@ def download_csv():
 
     # Create a CSV file
     csv_filename = request.form['file_name']
+    session['file_name'] = csv_filename  # Save the file name to session
     # if downloads folder does not exist, create it
     if not os.path.exists('downloads'):
         os.makedirs('downloads')
@@ -182,7 +185,7 @@ def download_csv():
 
     with open(csv_filepath, mode='w', newline='') as file:
         writer = csv.writer(file)
-        for row in data:
+        for row in data[:100]:  # Limit to 100 rows
             # If custom text is provided, add it as an extra column
             if custom_text:
                 writer.writerow(

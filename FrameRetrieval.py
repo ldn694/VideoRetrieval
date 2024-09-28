@@ -289,8 +289,6 @@ def retrieve_frames_multiple_queries(queries, folder_path,
         suggestions_inputs.append(suggestions_input)
 
     suggestions = create_suggestion(suggestions_inputs)
-    # shorten the len(suggestions) to num_frames
-    suggestions = suggestions[:num_frames]
     return suggestions
 
 
