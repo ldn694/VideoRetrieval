@@ -153,7 +153,7 @@ def retrieve_frames(queries, folder_path, num_frames, device, model, collection,
     return results
 
 
-def convert_to_suggestion_input(top_frames):
+def convert_to_suggestion_input(top_frames, len_file_name):
     # top_frames is the output of retrieve_frames function
     # list_frames is the output of retrieve_frames function
     # We need to convert these into a list of lists, where each list contains the top n frames for a query
@@ -164,7 +164,7 @@ def convert_to_suggestion_input(top_frames):
     for item in top_frames:
         frame_idx = item['meta_data']['frame_idx']
         timestamp = float(item['meta_data']['timestamp'])
-        file_name = item['meta_data']['path'][-7:]
+        file_name = item['meta_data']['path'][-len_file_name:]
         video_name = item['meta_data']['video_name']
         suggestions_input.append(
             (item['similarity'], video_name, frame_idx, timestamp, file_name))
@@ -272,15 +272,20 @@ def retrieve_frames_multiple_queries(queries, folder_path,
         queries, folder_path, num_frames, device, model, collection, db_mode)
     list_top_frames_from_image = retrieve_frames_from_image(
         image_paths, folder_path, num_frames, device, model, collection, preprocess, db_mode)
+    
+    if collection.name == 'image_embeddings':
+        len_file_name = 7
+    else:
+        len_file_name = 9
 
     for top_frames in list_top_frames:
         suggestions_input = convert_to_suggestion_input(
-            top_frames)
+            top_frames, len_file_name)
         suggestions_inputs.append(suggestions_input)
 
     for top_frames in list_top_frames_from_image:
         suggestions_input = convert_to_suggestion_input(
-            top_frames)
+            top_frames, len_file_name)
         suggestions_inputs.append(suggestions_input)
 
     suggestions = create_suggestion(suggestions_inputs)
