@@ -162,6 +162,24 @@
         });
 
         document.addEventListener('DOMContentLoaded', (event) => {
+            const newKeyframesElement = document.getElementById('new_keyframes');
+            const newKeyframes = localStorage.getItem('new_keyframes');
+            newKeyframesElement.addEventListener('change', () => {
+                if (newKeyframesElement.checked) {
+                    localStorage.setItem('new_keyframes', 'enabled');
+                } else {
+                    localStorage.setItem('new_keyframes', 'disabled');
+                }
+            });
+            if (newKeyframes === 'enabled') {
+                newKeyframesElement.checked = true;
+            }
+            else {
+                newKeyframesElement.checked = false;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', (event) => {
             const themeSwitch = document.getElementById('theme');
             const body = document.body;
             const html = document.documentElement;

@@ -63,6 +63,13 @@ def submit():
     db_mode = request.form.get('db_mode')
     show_image = request.form.get('show_image')
     is_show_image = show_image is not None
+    new_keyframes = request.form.get('new_keyframes')
+    if new_keyframes is not None:
+        keyframes_name = 'keyframes_new'
+        collection = chroma_client.get_collection("image_embeddings_new")
+    else:
+        keyframes_name = 'keyframes'
+        collection = chroma_client.get_collection("image_embeddings")
     print(f"DB Mode: {db_mode}")
     # if upload folder does not exist, create it
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -96,7 +103,7 @@ def submit():
             if is_show_image:
                 # Load the image
                 img = Image.open(os.path.join(
-                    folder_path, 'keyframes', video_name, file_name))
+                    folder_path, keyframes_name, video_name, file_name))
                 # Convert image to base64
                 buffered = io.BytesIO()
                 img.save(buffered, format="JPEG")
