@@ -401,6 +401,7 @@
                 // print the image source
                 console.log(imageSrc);
                 imageElement.type = 'button';
+                imageElement.loading = 'lazy';
                 imageElement.onclick = function() {
                     openModal(frames);
                 };

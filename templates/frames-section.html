@@ -17,6 +17,7 @@
 						<img class="thumbnail"
 							type="button"
 							src="{{ suggestion.frames[suggestion.main_frame][5] }}" 
+							loading="lazy"
 							onclick='openModal({{ suggestion.frames | tojson | safe }})'>
 					{% endif %}
 					<div class="card-body suggestion-info">
