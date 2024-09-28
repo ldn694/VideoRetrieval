@@ -221,6 +221,7 @@
 
         // Modal Logic
         function openModal(frames) {
+            console.log('Opening modal...');
             var modal = document.getElementById("myModal");
             var modelTitle = document.querySelector('.modal-title');
             var modalBody = document.querySelector('.modal-body');
@@ -237,7 +238,7 @@
             for (let i = 0; i < frames.length; i++) {
                 const frame = frames[i];
                 modalBody.innerHTML += `
-                    <img class="modal-frame" src="data:image/jpeg;base64,${frame[5]}" style="width:100%">
+                    <img class="modal-frame" src=${frame[5]} style="width:100%">
                     <ul>
                         <li>Sim: ${frame[3]}</li>
                         <li>Frame: ${frame[1]}</li>
@@ -361,7 +362,9 @@
             // Update the image source
             if (imageSrc) {
                 const imageElement = card.querySelector('.thumbnail');
-                imageElement.src = `data:image/jpeg;base64,${imageSrc}`;
+                imageElement.src = imageSrc;
+                // print the image source
+                console.log(imageSrc);
                 imageElement.type = 'button';
                 imageElement.onclick = function() {
                     openModal(frames);

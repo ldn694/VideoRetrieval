@@ -13,9 +13,9 @@
 						</div>
 					</div>
 					{% if suggestion.frames[suggestion.main_frame][5] %}
-						<img class="thumbnail" 
+						<img class="thumbnail"
 							type="button"
-							src="data:image/jpeg;base64,{{ suggestion.frames[suggestion.main_frame][5] }}" 
+							src="{{ suggestion.frames[suggestion.main_frame][5] }}" 
 							onclick='openModal({{ suggestion.frames | tojson | safe }})'>
 					{% endif %}
 					<div class="card-body suggestion-info">

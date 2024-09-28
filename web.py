@@ -14,6 +14,9 @@ from FrameRetrieval import retrieve_frames, convert_to_suggestion_input, create_
 import settings
 import time
 import chromadb
+import subprocess
+import atexit
+import signal
 
 app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
@@ -26,6 +29,7 @@ model, _, preprocess = open_clip.create_model_and_transforms(
     'MobileCLIP-B', pretrained='datacompdr_lt', device=device)
 
 transparent_image = None
+server_process = None
 
 
 def getTransparentImage():
@@ -103,13 +107,16 @@ def submit():
             video_name = frame[0]
             file_name = frame[5]
             if is_show_image:
-                # Load the image
-                img = Image.open(os.path.join(
-                    folder_path, keyframes_name, video_name, file_name))
-                # Convert image to base64
-                buffered = io.BytesIO()
-                img.save(buffered, format="JPEG")
-                img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                # # Load the image
+                # img = Image.open(os.path.join(
+                #     folder_path, keyframes_name, video_name, file_name))
+                # # Convert image to base64
+                # buffered = io.BytesIO()
+                # img.save(buffered, format="JPEG")
+                # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                img_str = os.path.join(
+                     'http://localhost:8000', keyframes_name, video_name, file_name)
+                img_str = '/'.join(img_str.split('\\'))
             else:
                 #  # Generate a transparent image and convert it to base64
                 # img = getTransparentImage()
