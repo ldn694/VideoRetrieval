@@ -28,6 +28,25 @@
 			<label for="formFileMultiple" class="form-label">Image queries</label>
 			<input class="form-control" type="file" id="formFileMultiple" name="images[]" accept="image/*" multiple>
 		</div>
+		<div class="accordion accordion-flush mb-3" id="imageListAccordion">
+			{% if image_queries %}
+				{% for file in image_queries %}
+				{% set image_id = file.index %}
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="heading{{ image_id }}">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ image_id }}" aria-expanded="false" aria-controls="collapse{{ image_id }}">
+							#{{ image_id }} - {{ file.name }}
+						</button>
+					</h2>
+					<div id="collapse{{ image_id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ image_id }}" data-bs-parent="#imageListAccordion">
+						<div class="accordion-body">
+							<img src="data:image/jpeg;base64,{{ file.image }}" class="img-thumbnail" alt="Image {{ image_id }}">
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+			{% endif %}
+		</div>
 		<div class="input-group mb-3">
 			<label for="num_frames" class="input-group-text">No. frames:</label>
 			<input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
