@@ -114,7 +114,7 @@ def submit():
                 # img.save(buffered, format="JPEG")
                 # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 img_str = os.path.join(
-                     'http://localhost:8000', keyframes_name, video_name, file_name)
+                     'http://0.0.0.0:8000', keyframes_name, video_name, file_name)
                 img_str = '/'.join(img_str.split('\\'))
             else:
                 #  # Generate a transparent image and convert it to base64

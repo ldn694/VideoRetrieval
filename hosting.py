@@ -17,7 +17,8 @@ class CustomHandler(Handler):
         return DATA_PATH + relpath
 
 # Create the server with the custom handler
-with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
+with socketserver.TCPServer(("0.0.0.0", PORT), CustomHandler) as httpd:
+    print(f"Serving at port {httpd.server_address[0]}")
     print(f"Serving at port {PORT}")
     httpd.serve_forever()
 
