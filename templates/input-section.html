@@ -34,7 +34,10 @@
 					</h2>
 					<div id="collapse{{ image_id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ image_id }}" data-bs-parent="#imageListAccordion">
 						<div class="accordion-body">
-							<img src="data:image/jpeg;base64,{{ file.image }}" class="img-thumbnail" alt="Image {{ image_id }}">
+							<img src="{{ file.image }}" 
+								loading="lazy"
+								class="img-thumbnail" 
+								alt="Image {{ image_id }}">
 						</div>
 					</div>
 				</div>
