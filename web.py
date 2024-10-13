@@ -47,7 +47,7 @@ collection = chroma_client.get_collection("image_embeddings_new")
 
 @app.route('/')
 def index():
-    num_frames = session.get('num_frames', 100)  # Default to 100 if not set
+    num_frames = session.get('num_frames', 200)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
     return render_template('index.html',
                            num_frames=num_frames,
@@ -114,7 +114,7 @@ def submit():
                 # img.save(buffered, format="JPEG")
                 # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 img_str = os.path.join(
-                     'http://localhost:8000', keyframes_name, video_name, file_name)
+                    'http://localhost:8000', keyframes_name, video_name, file_name)
                 img_str = '/'.join(img_str.split('\\'))
             else:
                 #  # Generate a transparent image and convert it to base64
@@ -287,7 +287,7 @@ def suggestion_sim(suggestion):
 def sort():
     sort = request.args.get('sort')
     suggestions = json.load(open('suggestions.json'))
-    num_frames = session.get('num_frames', 100)  # Default to 100 if not set
+    num_frames = session.get('num_frames', 200)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
     queries = session.get('queries', [])
     file_paths = session.get('image_paths', [])
