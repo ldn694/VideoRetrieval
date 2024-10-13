@@ -49,9 +49,11 @@ collection = chroma_client.get_collection("image_embeddings_new")
 def index():
     num_frames = session.get('num_frames', 200)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
+    queries = session.get('queries', [(0, '')])
     return render_template('index.html',
                            num_frames=num_frames,
                            csv_filename=csv_filename,
+                           queries=queries,
                            sort="none")
 
 
@@ -289,7 +291,7 @@ def sort():
     suggestions = json.load(open('suggestions.json'))
     num_frames = session.get('num_frames', 200)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
-    queries = session.get('queries', [])
+    queries = session.get('queries', [(0, '')])
     file_paths = session.get('image_paths', [])
     execution_time = session.get('execution_time', None)
     image_queries = get_img_str_from_paths(file_paths, len(queries))

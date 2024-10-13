@@ -12,131 +12,7 @@
     <link href="{{ url_for('static', filename='css/fontawesome.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/regular.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/solid.css') }}" rel="stylesheet" />
-    <!-- <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        img {
-            width: 100%;
-            height: auto;
-        }
-    </style> -->
-    <style>
-        .input-section {
-            padding: 10px;
-            border-right: 1px solid var(--bs-border-color-translucent);
-            max-height: 100vh;
-            overflow-y: scroll;
-            overflow-x: hidden;
-        }
-        .right-section {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-        .csv-section {
-            display: flex;
-            justify-content: start;
-            margin-bottom: 20px;
-        }
-        .frames-section {
-            display: flex;
-            flex-wrap: wrap;
-            flex-grow: 1;
-            overflow-y: scroll;
-            max-height: 99vh;
-            gap: 10px;
-        }
-        .frames-section > .card {
-            width: calc(20% - 10px);
-        }
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-        .close {
-            position: absolute;
-            top: 10px;
-            right: 25px;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-        }
-        img {
-            width: 100%;
-            height: auto;
-        }
-        .close:hover,
-        .close:focus {
-            color: #bbb;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        /* Dragging styles */
-        .dragging {
-            opacity: 0.5;
-        }
-        .container-fluid {
-            max-height: 100vh; /* Set the maximum height */
-            display: flex;
-            flex-direction: column;
-            overflow-y: hidden;
-        }
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        .textarea-container {
-            height: 4em;
-            display: inline-flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .textarea-container > textarea {
-            resize: none;
-            line-height: 1.2em; /* Set the line height */
-            height: 4em; /* Set the height */
-        }
-        .dropdown-menu {
-            position: absolute;
-            z-index: 1000; /* Ensure the dropdown appears above other elements */
-        }
-        .delete-query {
-            height: 100%;
-            padding-left: 5px;
-            padding-right: 5px;
-            text-align: center;
-            z-index: 0 !important;
-        }
-        .textarea-container > .input-group-text {
-            height: 100%;
-            padding-left: 5px;
-            padding-right: 5px;
-            text-align: center;
-        }
-
-        .no-outline {
-            --bs-btn-border-color: transparent;
-        }
-        .float-end {
-            float: right;
-        }
-        .card-title > .btn-close {
-            margin-left: auto;
-        }
-        ::placeholder {
-            font-style: italic;
-        }
-    </style>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
 </head>
 <body>
     <div class="container-fluid">
@@ -357,6 +233,15 @@
                     localStorage.setItem('darkMode', 'disabled');
                 }
             });
+
+            const textAreas = document.querySelectorAll('textarea');
+
+            textAreas.forEach(textArea => {
+                textArea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+            });
         });
 
         function changeDBMode(mode) {
@@ -462,10 +347,17 @@
             // newTextarea.ondrop = dropQuery;
             // newTextarea.ondragend = dragEndQuery;
             newTextarea.innerHTML = `
-                <span class="input-group-text">${num_queries}</span>
-                <textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
-                <button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+                <label class="form-label mb-0" style="width:100%" for="query_${num_queries}">
+                    Text #${num_queries}
+                    <button type="button" class="btn btn-outline-danger no-outline delete-query float-end" onclick="deleteTextarea(this)">
+                        <i class="fa-regular fa-trash-can"></i></button>
+                </label>
+                <textarea type="text" id="query_${num_queries}" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
             `;
+            newTextarea.querySelector('textarea').addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
             queryContainer.appendChild(newTextarea);
             updateQueryNumbers();
             num_queries += 1;

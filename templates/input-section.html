@@ -5,23 +5,17 @@
 	<h5 data-bs-toggle="collapse" href="#InputSection" aria-controls="InputSection" role="button"> Input</h5>  
 	<form method="POST" action="/submit" onsubmit="showSpinner()" id="InputSection" class="collapse show" enctype="multipart/form-data">
 		<div id="query-container">
-			{% if queries %}
-				{% for query_id, query_text in queries %}
-					<div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
-						<span class="input-group-text">{{ query_id }}</span>
-						<textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required>{{ query_text }}</textarea>
-						<button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
-					</div>
-				{% endfor %}
-			{% else %}
-				<div class="textarea-container input-group mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
-					<span class="input-group-text">0</span>
-					<textarea type="text" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required></textarea>
-					<button type="button" class="btn btn-danger no-outline delete-query" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+			{% for query_id, query_text in queries %}
+				<div class="textarea-container mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
+					<label class="form-label mb-0" for="query_{{ query_id }}" style="width:100%">
+						Text #{{ query_id }}
+						<button type="button" class="btn btn-outline-danger no-outline delete-query float-end" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+					</label>
+					<textarea type="text" id="query_{{ query_id }}" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required>{{ query_text }}</textarea>
 				</div>
-			{% endif %}
+			{% endfor %}
 		</div>
-		<div class="d-grid mb-3">
+		<div class="d-grid mb-3 mt-3">
 			<button type="button" class="btn btn-secondary btn-block" onclick="addTextarea()"><i class="fa-solid fa-plus"></i></button>
 		</div>
 		<div class="mb-3">
