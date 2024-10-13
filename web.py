@@ -17,6 +17,7 @@ import chromadb
 import subprocess
 import atexit
 import signal
+import socket
 
 app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
@@ -117,8 +118,9 @@ def submit():
                 # buffered = io.BytesIO()
                 # img.save(buffered, format="JPEG")
                 # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                local_ip = socket.gethostbyname(socket.gethostname())
                 img_str = os.path.join(
-                    'http://localhost:8000', keyframes_name, video_name, file_name)
+                     f'http://{local_ip}:8000', keyframes_name, video_name, file_name)
                 img_str = '/'.join(img_str.split('\\'))
             else:
                 #  # Generate a transparent image and convert it to base64
