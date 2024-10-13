@@ -47,11 +47,13 @@ collection = chroma_client.get_collection("image_embeddings_new")
 
 @app.route('/')
 def index():
-    num_frames = session.get('num_frames', 100)  # Default to 100 if not set
+    num_frames = session.get('num_frames', 200)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
+    queries = session.get('queries', [(0, '')])
     return render_template('index.html',
                            num_frames=num_frames,
                            csv_filename=csv_filename,
+                           queries=queries,
                            sort="none")
 
 
@@ -210,12 +212,19 @@ def download_csv():
 
     with open(csv_filepath, mode='w', newline='') as file:
         writer = csv.writer(file)
-        for row in data[:100]:  # Limit to 100 rows
-            # If custom text is provided, add it as an extra column
-            if custom_text:
-                writer.writerow(
-                    [row['video_name'], row['frame_idx'], custom_text])
-            else:
+        if custom_text:
+            wrote = 0
+            ans_list = [ans.strip() for ans in custom_text.split(',')]
+            print(ans_list)
+            for row in data[:100]:  # Limit to 100 rows
+                for ans in ans_list:
+                    if wrote >= 100:
+                        break
+                    writer.writerow(
+                        [row['video_name'], row['frame_idx'], ans])
+                    wrote += 1
+        else:
+            for row in data[:100]:
                 writer.writerow([row['video_name'], row['frame_idx']])
 
     # Send the file to the client using 'download_name' instead of 'attachment_filename'
@@ -287,9 +296,9 @@ def suggestion_sim(suggestion):
 def sort():
     sort = request.args.get('sort')
     suggestions = json.load(open('suggestions.json'))
-    num_frames = session.get('num_frames', 100)  # Default to 100 if not set
+    num_frames = session.get('num_frames', 200)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
-    queries = session.get('queries', [])
+    queries = session.get('queries', [(0, '')])
     file_paths = session.get('image_paths', [])
     execution_time = session.get('execution_time', None)
     image_queries = get_img_str_from_paths(file_paths, len(queries))
