@@ -523,10 +523,8 @@
                     newCard.classList.add('suggestion', 'card', 'col-md-2');
                     newCard.innerHTML = `
                         <div class="card-header">
-                            <div class="row">
-                                <b class="col video-name">${videoName}</b>
-                                <button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
-                            </div>
+                            <b class="video-name" style="width:100%">${videoName}</b>
+                            <button type="button" class="btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
                         </div>
                         <div class="card-body suggestion-info">
                             <p class="main-frame">Frame: ${frameIdx}</p>
