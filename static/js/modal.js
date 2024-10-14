@@ -113,13 +113,24 @@ function openModal(frames, index) {
 	for (let i = 0; i < frames.length; i++) {
 		const frame = frames[i];
 		modalBody.innerHTML += `
-			<img class="modal-frame" src=${frame[5]} style="width:100%">
-			<ul>
-				<li>Sim: ${frame[3]}</li>
-				<li>Frame: ${frame[1]}</li>
-				<li>Timestamp: ${frame[2]}s</li>
-				<li>Query ID: ${frame[4]}</li>
-			</ul>
+			<div class="d-flex justify-content-between flex-wrap">
+				<img class="modal-frame mb-3 col-md-9" src=${frame[5]}>
+				<div class="col-md-3 ps-3">
+					<h5>Frame ${frame[1]}</h5>
+					<div class="form-check mb-3">
+						<input class="form-check-input" type="radio" name="mainFrame" id="frameRadio-${i}">
+						<label class="form-check-label" for="frameRadio-${i}">
+							Set as main frame
+						</label>
+					</div>
+					<h6>Details</h6>
+					<ul>
+						<li>Sim: ${frame[3]}</li>
+						<li>Timestamp: ${frame[2]}s</li>
+						<li>Query ID: ${frame[4]}</li>
+					</ul>
+				</div>
+			</div>
 		`;
 		if (i < frames.length - 1) {
 			modalBody.innerHTML += '<hr>';

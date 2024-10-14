@@ -4,7 +4,6 @@
 	max-height: 100vh;
 	overflow-y: scroll;
 	overflow-x: hidden;
-	min-width: 300px;
 }
 .right-section {
 	padding-left: 10px;
