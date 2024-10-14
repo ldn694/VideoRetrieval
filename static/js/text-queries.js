@@ -1,8 +1,7 @@
-let num_queries = {{ queries|length }};
 function addTextarea() {
 	const queryContainer = document.getElementById('query-container');
 	const newTextarea = document.createElement('div');
-	newTextarea.classList.add('textarea-container', 'input-group', 'mb-2');
+	newTextarea.classList.add('textarea-container', 'mb-2');
 	// newTextarea.draggable = true;
 	// newTextarea.ondragstart = dragQuery;
 	// newTextarea.ondragover = onDragOverQuery;

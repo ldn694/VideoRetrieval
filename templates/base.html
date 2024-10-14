@@ -18,13 +18,8 @@
     <div class="container-fluid">
 		{% block content %}{% endblock %}
 	</div>
-    <script src="{{ url_for('static', filename='js/csv.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/image-queries.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/text-queries.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/frames.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     <script>
+        let num_queries = {{ queries | length }};
         document.addEventListener('DOMContentLoaded', (event) => {
             const newKeyframesElement = document.getElementById('new_keyframes');
             const newKeyframes = localStorage.getItem('new_keyframes');
@@ -71,5 +66,11 @@
             submitButton.disabled = true;
         }
     </script>
+    <script src="{{ url_for('static', filename='js/csv.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/image-queries.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/text-queries.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/frames.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>
