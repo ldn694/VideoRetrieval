@@ -5,6 +5,7 @@
 	<div class="frames-section" id = "framesSection">
 		{% if suggestions %}
 			{% for suggestion in suggestions %}
+				{% set index = loop.index0 %}
 				<div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
 					<div class="card-header">
 						<div class="row">
@@ -15,10 +16,11 @@
 					</div>
 					{% if suggestion.frames[suggestion.main_frame][5] %}
 						<img class="thumbnail"
+							id="thumbnail-{{ index }}"
 							type="button"
 							src="{{ suggestion.frames[suggestion.main_frame][5] }}" 
 							loading="lazy"
-							onclick='openModal({{ suggestion.frames | tojson | safe }})'>
+							onclick='openModal({{ suggestion.frames | tojson | safe }}, {{ index }})'>
 					{% endif %}
 					<div class="card-body suggestion-info">
 						<p class="sim mb-1">Sim: {{ suggestion.frames[suggestion.main_frame][3] | round(6) }}</p>

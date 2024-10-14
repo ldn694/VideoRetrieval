@@ -103,7 +103,7 @@
 
             // Scroll to the next or previous frame when pressing the down or up arrow keys
             document.addEventListener('keydown', function(event) {
-                if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                if (event.key === 'ArrowDown' | event.key === 'ArrowUp') {
                     // Prevent the default behavior of the arrow keys
                     event.preventDefault();
                 }
@@ -125,9 +125,39 @@
                         modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
                         event.preventDefault();
                     }
+                } else if (event.key === 'ArrowLeft') {
+                    viewPreviousSuggestion();
+                } else if (event.key === 'ArrowRight') {
+                    viewNextSuggestion();
                 }
             });
         });
+
+        var currentSuggestion = -1;
+
+        function viewNextSuggestion() {
+            const suggestions = document.querySelectorAll('.suggestion');
+            if (currentSuggestion < suggestions.length - 1) {
+                currentSuggestion++;
+                triggerThumbnailClick(currentSuggestion);
+            }
+        }
+
+        function viewPreviousSuggestion() {
+            if (currentSuggestion > 0) {
+                currentSuggestion--;
+                triggerThumbnailClick(currentSuggestion);
+            }
+        }
+
+        function triggerThumbnailClick(index) {
+            const thumbnail = document.getElementById(`thumbnail-${index}`);
+            if (thumbnail) {
+                thumbnail.click();
+            } else {
+                console.error(`Thumbnail with index ${index} not found.`);
+            }
+        }
 
         function closeModal() {
             var modal = document.getElementById("myModal");
@@ -135,7 +165,8 @@
         }
 
         // Modal Logic
-        function openModal(frames) {
+        function openModal(frames, index) {
+            currentSuggestion = index;
             console.log('Opening modal...');
             var modal = document.getElementById("myModal");
             var modelTitle = document.querySelector('.modal-title');
