@@ -94,10 +94,11 @@ function closeModal() {
 }
 
 // Modal Logic
-function openModal(element, frames, index) {
+function openModal(frames, index) {
 	currentSuggestion = index;
 	console.log('Opening modal...');
-	const card = element.closest('.card');
+	// get the index-th suggestion
+	const card = document.getElementById(`suggestion-${index}`);
 	const mainFrameElement = card.querySelector('.main-frame');
 	// get the number in "Frame: 1" and convert it to an integer
 	const mainFrameID = parseInt(mainFrameElement.textContent.split(' ')[1]);
@@ -117,13 +118,16 @@ function openModal(element, frames, index) {
 	// loop through the frames and add them to the modal body
 	for (let i = 0; i < frames.length; i++) {
 		const frame = frames[i];
+		const onclick = `updateMainFrame(${frame[1]}, ${frame[3]}, "${frame[5]}", "${index}", ${JSON.stringify(frames).replace(/"/g, '&quot;')})`;
 		modalBody.innerHTML += `
 			<div class="d-flex justify-content-between flex-wrap">
 				<img class="modal-frame mb-3 col-md-9" src=${frame[5]}>
 				<div class="col-md-3 ps-3">
 					<h5>Frame ${frame[1]}</h5>
 					<div class="form-check mb-3">
-						<input class="form-check-input" type="radio" name="mainFrame" id="frameRadio-${i}" ${mainFrameID === frame[1] ? 'checked' : ''}>
+						<input class="form-check-input" type="radio" name="mainFrame"
+							onclick='${onclick}' 
+							id="frameRadio-${i}" ${mainFrameID === frame[1] ? 'checked' : ''}>
 						<label class="form-check-label" for="frameRadio-${i}">
 							Set as main frame
 						</label>

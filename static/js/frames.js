@@ -1,7 +1,6 @@
-function updateMainFrame(element, frameNumber, score, imageSrc, index, frames) {
+function updateMainFrame(frameNumber, score, imageSrc, index, frames) {
 	// Find the closest card element
-	const card = element.closest('.card');
-
+	const card = document.getElementById(`suggestion-${index}`);
 	// Update the main frame text
 	const mainFrameElement = card.querySelector('.main-frame');
 	mainFrameElement.textContent = `Frame: ${frameNumber}`;
@@ -20,7 +19,7 @@ function updateMainFrame(element, frameNumber, score, imageSrc, index, frames) {
 		imageElement.type = 'button';
 		imageElement.loading = 'lazy';
 		imageElement.onclick = function() {
-			openModal(card, frames, index);
+			openModal(frames, index);
 		};
 	}
 }
