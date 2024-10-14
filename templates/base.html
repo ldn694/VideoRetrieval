@@ -136,6 +136,9 @@
         var currentSuggestion = -1;
 
         function viewNextSuggestion() {
+            if (currentSuggestion === -1) {
+                return;
+            }
             const suggestions = document.querySelectorAll('.suggestion');
             if (currentSuggestion < suggestions.length - 1) {
                 currentSuggestion++;
@@ -144,6 +147,9 @@
         }
 
         function viewPreviousSuggestion() {
+            if (currentSuggestion === -1) {
+                return;
+            }
             if (currentSuggestion > 0) {
                 currentSuggestion--;
                 triggerThumbnailClick(currentSuggestion);
@@ -162,6 +168,7 @@
         function closeModal() {
             var modal = document.getElementById("myModal");
             modal.style.display = "none";
+            currentSuggestion = -1;
         }
 
         // Modal Logic
