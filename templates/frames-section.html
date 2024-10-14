@@ -18,13 +18,12 @@
 							type="button"
 							src="{{ suggestion.frames[suggestion.main_frame][5] }}" 
 							loading="lazy"
-							onclick='openModal({{ suggestion.frames | tojson | safe }}, {{ index }})'>
+							onclick='openModal(this, {{ suggestion.frames | tojson | safe }}, {{ index }})'>
 					{% endif %}
 					<div class="card-body suggestion-info">
 						<p class="sim mb-1">Sim: {{ suggestion.frames[suggestion.main_frame][3] | round(6) }}</p>
 						<p class="main-frame mb-1">Frame: {{ suggestion.frames[suggestion.main_frame][1] }}</p>
 						<p class="unique-id mb-1">Unique ID: {{ suggestion.num_unique }} </p>
-						
 						<!-- Frame scores -->
 						<div class="dropdown">
 							<button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
@@ -34,8 +33,9 @@
 							{% for frame in suggestion.frames %}
 								<li><h5 class="dropdown-header">Frame {{ frame[1] }}</h5></li>
 								<li class="dropdown-item" 
-									onclick='updateMainFrame(this, "{{ frame[1] }}", "{{ frame[3] }}", "{{ frame[5] }}", {{ suggestion.frames | tojson | safe }})'>
-									Score {{ frame[3] }} <br>
+									onclick='updateMainFrame(this, "{{ frame[1] }}", "{{ frame[3] }}", "{{ frame[5] }}", 
+																"{{ index }}", {{ suggestion.frames | tojson | safe }})'>
+									Score: {{ frame[3] }} <br>
 									Timestamp: {{ frame[2] }}s <br>
 									Query ID: {{ frame[4] }}
 								</li>

@@ -1,4 +1,4 @@
-function updateMainFrame(element, frameNumber, score, imageSrc, frames) {
+function updateMainFrame(element, frameNumber, score, imageSrc, index, frames) {
 	// Find the closest card element
 	const card = element.closest('.card');
 
@@ -20,7 +20,7 @@ function updateMainFrame(element, frameNumber, score, imageSrc, frames) {
 		imageElement.type = 'button';
 		imageElement.loading = 'lazy';
 		imageElement.onclick = function() {
-			openModal(frames);
+			openModal(card, frames, index);
 		};
 	}
 }

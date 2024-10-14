@@ -94,9 +94,14 @@ function closeModal() {
 }
 
 // Modal Logic
-function openModal(frames, index) {
+function openModal(element, frames, index) {
 	currentSuggestion = index;
 	console.log('Opening modal...');
+	const card = element.closest('.card');
+	const mainFrameElement = card.querySelector('.main-frame');
+	// get the number in "Frame: 1" and convert it to an integer
+	const mainFrameID = parseInt(mainFrameElement.textContent.split(' ')[1]);
+
 	var modal = document.getElementById("myModal");
 	var modelTitle = document.querySelector('.modal-title');
 	var modalBody = document.querySelector('.modal-body');
@@ -118,7 +123,7 @@ function openModal(frames, index) {
 				<div class="col-md-3 ps-3">
 					<h5>Frame ${frame[1]}</h5>
 					<div class="form-check mb-3">
-						<input class="form-check-input" type="radio" name="mainFrame" id="frameRadio-${i}">
+						<input class="form-check-input" type="radio" name="mainFrame" id="frameRadio-${i}" ${mainFrameID === frame[1] ? 'checked' : ''}>
 						<label class="form-check-label" for="frameRadio-${i}">
 							Set as main frame
 						</label>
