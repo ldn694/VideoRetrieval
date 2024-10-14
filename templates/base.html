@@ -113,7 +113,7 @@
                     if (currentFrameIndex < modelFrames.length - 1) {
                         console.log('Scrolling to the next frame');
                         currentFrameIndex++;
-                        modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'smooth' });
+                        modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
                         event.preventDefault();
                     }
                 } else if (event.key === 'ArrowUp') {
@@ -122,7 +122,7 @@
                     if (currentFrameIndex > 0) {
                         console.log('Scrolling to the previous frame');
                         currentFrameIndex--;
-                        modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'smooth' });
+                        modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
                         event.preventDefault();
                     }
                 }
