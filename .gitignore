@@ -5,4 +5,6 @@ local_settings.py
 __pycache__/
 downloads/*
 uploads/*
+static/downloads/*
+static/uploads/*
 suggestions.json

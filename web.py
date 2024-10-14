@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, session
+from flask import Flask, render_template, request, send_file, session, url_for
 import os
 import torch
 import open_clip
@@ -21,7 +21,8 @@ import socket
 
 app = Flask(__name__)
 app.secret_key = 'Yeu Phuong Anh<3'  # Necessary for session
-app.config['UPLOAD_FOLDER'] = 'uploads/'
+app.static_folder = 'static'
+app.config['UPLOAD_FOLDER'] = 'uploads'
 
 # Global model variables (loaded once)
 # device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -81,14 +82,15 @@ def submit():
         collection = chroma_client.get_collection("image_embeddings")
 
     # if upload folder does not exist, create it
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
+    if not os.path.exists(os.path.join(app.static_folder, app.config['UPLOAD_FOLDER'])):
+        os.makedirs(os.path.join(app.static_folder,
+                    app.config['UPLOAD_FOLDER']))
     # Process the uploaded files
     file_paths = []
     for file in uploaded_files:
         if file:
-            file_path = os.path.join(
-                app.config['UPLOAD_FOLDER'], file.filename)
+            file_path = os.path.join(app.static_folder,
+                                     app.config['UPLOAD_FOLDER'], file.filename)
             file.save(file_path)
             file_paths.append(file_path)
             print("Uploaded File:", file_path)
@@ -186,13 +188,16 @@ def find_best_frame(frames):
 def get_img_str_from_paths(file_paths, num_text_queries):
     image_queries = []
     for i, file_path in enumerate(file_paths):
-        img = Image.open(file_path)
-        # resize the image to 1280 width while keeping the aspect ratio
-        img.thumbnail((1280, 1280))
-        buffered = io.BytesIO()
-        img.save(buffered, format="JPEG")
-        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        # img = Image.open(file_path)
+        # # resize the image to 1280 width while keeping the aspect ratio
+        # img.thumbnail((1280, 1280))
+        # buffered = io.BytesIO()
+        # img.save(buffered, format="JPEG")
+        # join current path of this file with the file path
         file_name = os.path.basename(file_path)
+        img_str = url_for(
+            'static', filename=f"{app.config['UPLOAD_FOLDER']}/{file_name}")
+        print("Image Path:", img_str)
         image_queries.append(
             {"index": i + num_text_queries, "name": file_name, "image": img_str})
     return image_queries
@@ -207,10 +212,10 @@ def download_csv():
     # Create a CSV file
     csv_filename = request.form['file_name']
     session['file_name'] = csv_filename  # Save the file name to session
-    # if downloads folder does not exist, create it
-    if not os.path.exists('downloads'):
-        os.makedirs('downloads')
-    csv_filepath = os.path.join('downloads', csv_filename)
+    # if downloads folder does not exist in static, create it
+    if not os.path.exists(os.path.join(app.static_folder, 'downloads')):
+        os.makedirs(os.path.join(app.static_folder, 'downloads'))
+    csv_filepath = os.path.join(app.static_folder, 'downloads', csv_filename)
 
     with open(csv_filepath, mode='w', newline='') as file:
         writer = csv.writer(file)
