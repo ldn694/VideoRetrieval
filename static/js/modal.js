@@ -1,10 +1,10 @@
 let modelFrames = document.querySelectorAll('.modal-frame'); // Assuming frames have the class 'modal-frame'
+const modal = document.getElementById('myModal');
 let currentFrameIndex = 0;
 var currentSuggestion = -1;
 
 document.addEventListener('DOMContentLoaded', (event) => {
-	const modal = document.getElementById('myModal');
-	const modalContent = modal.querySelector('.modal-body');
+	const modalBody = modal.querySelector('.modal-body');
 
 	// Function to close the modal
 	function closeModal() {
@@ -57,6 +57,30 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	});
 });
 
+function updateCurrentModalFrame() {
+	// check if modal is opened
+	if (currentSuggestion === -1) {
+		return;
+	}
+	const cards = modelFrames;
+	let closestCardIndex = 0;
+	let closestCardDistance = Infinity;
+	const modal = document.getElementById("myModal");;
+
+	cards.forEach((card, i) => {
+		const rect = card.getBoundingClientRect();
+		const distance = Math.abs(rect.top + modal.getBoundingClientRect().top);
+		console.log(distance);
+		if (distance < closestCardDistance) {
+			closestCardDistance = distance;
+			closestCardIndex = i;
+		}
+	});
+
+	currentFrameIndex = closestCardIndex;
+	console.log('Current Frame Index:', currentFrameIndex);
+}
+
 function viewNextSuggestion() {
 	if (currentSuggestion === -1) {
 		return;
@@ -106,7 +130,6 @@ function openModal(frames, index) {
 	var modal = document.getElementById("myModal");
 	var modelTitle = document.querySelector('.modal-title');
 	var modalBody = document.querySelector('.modal-body');
-	currentFrameIndex = 0;
 	// var sim = frames[0][3];
 	// var frame = frames[0][1];
 	const video = frames[0][0];
@@ -149,4 +172,5 @@ function openModal(frames, index) {
 	modelFrames = document.querySelectorAll('.modal-frame'); // Assuming frames have the class 'modal-frame'
 	console.log(modelFrames.length + ' frames found');
 	modal.focus();
+	updateCurrentModalFrame();
 }
