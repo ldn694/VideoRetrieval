@@ -70,7 +70,7 @@ function updateCurrentModalFrame() {
 	cards.forEach((card, i) => {
 		const rect = card.getBoundingClientRect();
 		const distance = Math.abs(rect.top + modal.getBoundingClientRect().top);
-		console.log(distance);
+		// console.log(distance);
 		if (distance < closestCardDistance) {
 			closestCardDistance = distance;
 			closestCardIndex = i;
