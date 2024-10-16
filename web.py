@@ -74,7 +74,7 @@ def submit():
     show_image = request.form.get('show_image')
     is_show_image = show_image is not None
     keyframes = request.form.get('keyframes')
-    print("Keyframes:", keyframes)
+    print("Keyframes:", keyframes, "; DB Mode: ", db_mode)
     
     # TODO: change this
     # if keyframes == '12_old':
