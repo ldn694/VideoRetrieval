@@ -73,8 +73,19 @@ def submit():
     db_mode = request.form.get('db_mode')
     show_image = request.form.get('show_image')
     is_show_image = show_image is not None
-    new_keyframes = request.form.get('new_keyframes')
-    if new_keyframes is not None:
+    keyframes = request.form.get('keyframes')
+    print("Keyframes:", keyframes)
+    
+    # TODO: change this
+    # if keyframes == '12_old':
+    #    do sth
+    # elif keyframes == '12_new':
+    #    do sth
+    # elif keyframes == '3_old':
+    #    do sth
+    # elif keyframes == '3_new':
+    #    do sth
+    if keyframes is not None:
         keyframes_name = 'keyframes_new'
         collection = chroma_client.get_collection("image_embeddings_new")
     else:
