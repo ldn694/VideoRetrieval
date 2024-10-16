@@ -45,11 +45,11 @@
 			{% endif %}
 		</div>
 		<p class="mb-3">Configurations</p>
-		<div class="input-group mb-3">
+		<div class="input-group mb-2">
 			<label for="num_frames" class="input-group-text">No. frames:</label>
 			<input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
 		</div>
-		<div class="input-group mb-3" style="width:100%">
+		<div class="input-group mb-2" style="width:100%">
 			<label for="db_mode" class="input-group-text">DB mode:</label>
 			<select class="form-select" aria-label="DBDropdown" id="db_mode" name="db_mode">
 				<option value="fast">Fast</option>
@@ -57,7 +57,7 @@
 				<option value="slow">Slow</option>
 			</select>
 		</div>
-		<div class="input-group mb-3">
+		<div class="input-group mb-2">
 			<label class="input-group-text" for="keyframes">Keyframes:</label>
 			<select class="form-select" aria-label="Keyframes batch" 
 				id="keyframes" name="keyframes">
