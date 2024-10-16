@@ -20,42 +20,20 @@
 	</div>
     <script>
         let num_queries = {{ queries | length }};
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const newKeyframesElement = document.getElementById('new_keyframes');
-            const newKeyframes = localStorage.getItem('new_keyframes');
-            newKeyframesElement.addEventListener('change', () => {
-                if (newKeyframesElement.checked) {
-                    localStorage.setItem('new_keyframes', 'enabled');
-                } else {
-                    localStorage.setItem('new_keyframes', 'disabled');
-                }
-            });
-            if (newKeyframes === 'enabled') {
-                newKeyframesElement.checked = true;
+        document.addEventListener('DOMContentLoaded', function() {
+            const keyframesSelect = document.getElementById('keyframes');
+            
+            // Load the saved option from localStorage
+            const savedOption = localStorage.getItem('selectedKeyframesOption');
+            if (savedOption) {
+                keyframesSelect.value = savedOption;
             }
-            else {
-                newKeyframesElement.checked = false;
-            }
-        });
 
-        function changeDBMode(mode) {
-            const dbModeInput = document.getElementById('db_mode');
-            const dbModeButton = document.getElementById('DBDropdown');
-            dbModeInput.value = mode;
-            switch (mode) {
-                case 'fast':
-                    dbModeButton.textContent = 'Fast';
-                    break;
-                case 'standard':
-                    dbModeButton.textContent = 'Standard';
-                    break;
-                case 'slow':
-                    dbModeButton.textContent = 'Slow';
-                    break;
-                default:
-                    dbModeButton.textContent = 'Standard';
-            }
-        }
+            // Save the selected option to localStorage
+            keyframesSelect.addEventListener('change', function() {
+                localStorage.setItem('selectedKeyframesOption', keyframesSelect.value);
+            });
+        });
 
         function showSpinner() {
             const submitButton = document.getElementById('submit-button');
