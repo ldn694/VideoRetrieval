@@ -5,26 +5,26 @@
 	<div class="frames-section" id = "framesSection">
 		{% if suggestions %}
 			{% for suggestion in suggestions %}
-				<div class="suggestion card col-md-2" draggable="true" ondragstart="dragFrame(event)" ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
+				{% set index = loop.index0 %}
+				<div class="suggestion card col-md-2" id="suggestion-{{ index }}" draggable="true" ondragstart="dragFrame(event)" 
+					ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
 					<div class="card-header">
-						<div class="row">
-							<a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
-								target="_blank" class="col video-name card-link">{{ suggestion.frames[0][0] }}</a>
-							<button type="button" class="col btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
-						</div>
+						<a href="https://www.youtube.com/watch?v={{ video_urls[suggestion.frames[0][0]] }}&start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
+							target="_blank" class="video-name card-link" style="width:100%">{{ suggestion.frames[0][0] }}</a>
+						<button type="button" class="btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
 					</div>
 					{% if suggestion.frames[suggestion.main_frame][5] %}
 						<img class="thumbnail"
+							id="thumbnail-{{ index }}"
 							type="button"
 							src="{{ suggestion.frames[suggestion.main_frame][5] }}" 
 							loading="lazy"
-							onclick='openModal({{ suggestion.frames | tojson | safe }})'>
+							onclick='openModal({{ suggestion.frames | tojson | safe }}, {{ index }})'>
 					{% endif %}
 					<div class="card-body suggestion-info">
 						<p class="sim mb-1">Sim: {{ suggestion.frames[suggestion.main_frame][3] | round(6) }}</p>
 						<p class="main-frame mb-1">Frame: {{ suggestion.frames[suggestion.main_frame][1] }}</p>
 						<p class="unique-id mb-1">Unique ID: {{ suggestion.num_unique }} </p>
-						
 						<!-- Frame scores -->
 						<div class="dropdown">
 							<button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
@@ -34,8 +34,9 @@
 							{% for frame in suggestion.frames %}
 								<li><h5 class="dropdown-header">Frame {{ frame[1] }}</h5></li>
 								<li class="dropdown-item" 
-									onclick='updateMainFrame(this, "{{ frame[1] }}", "{{ frame[3] }}", "{{ frame[5] }}", {{ suggestion.frames | tojson | safe }})'>
-									Score {{ frame[3] }} <br>
+									onclick='updateMainFrame("{{ frame[1] }}", "{{ frame[3] }}", "{{ frame[5] }}", 
+																"{{ index }}", {{ suggestion.frames | tojson | safe }})'>
+									Score: {{ frame[3] }} <br>
 									Timestamp: {{ frame[2] }}s <br>
 									Query ID: {{ frame[4] }}
 								</li>

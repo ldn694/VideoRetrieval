@@ -4,7 +4,6 @@
 	max-height: 100vh;
 	overflow-y: scroll;
 	overflow-x: hidden;
-	min-width: 300px;
 }
 .right-section {
 	padding-left: 10px;
@@ -110,4 +109,37 @@ html, body {
 }
 ::placeholder {
 	font-style: italic;
+}
+
+.arrow-button {
+  top: 50%; /* Vertically centers the button */
+  z-index: 1055; /* Ensure it's above other modal elements */
+  border-radius: 50%; /* Makes the button round */
+  /* border thickness */
+  border: 0px solid transparent;
+  font-size: 1.5em;;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-body-color);
+}
+
+
+.arrow-button-container {
+	position: fixed;
+  	bottom: 20px;
+  	left: 50%;
+  	z-index: 1055;
+	align-items: center;
+  	justify-content: center;
+	background-color: var(--bs-body-bg);
+	transform: translateX(-50%);
+	display: flex;
+	padding: 10px;
+	gap:10px;
+	border-radius: var(--bs-border-radius);	
+	border: 1px solid var(--bs-border-color);
+	box-shadow: var(--bs-box-shadow);
 }
