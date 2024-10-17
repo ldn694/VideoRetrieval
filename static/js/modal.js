@@ -146,7 +146,12 @@ function openModal(frames, index) {
 			<div class="d-flex justify-content-between flex-wrap">
 				<img class="modal-frame mb-3 col-md-9" src=${frame[5]}>
 				<div class="col-md-3 ps-3">
-					<h5>Frame ${frame[1]}</h5>
+					<h5>
+						Frame ${frame[1]}
+						<button type="button" class="btn no-outline btn-outline-primary btn-sm">
+							<i class="fa-solid fa-arrow-up-right-from-square"></i>
+						</button>
+					</h5>
 					<div class="form-check mb-3">
 						<input class="form-check-input" type="radio" name="mainFrame"
 							onclick='${onclick}' 
