@@ -27,6 +27,11 @@
 .frames-section > .card {
 	width: calc(20% - 10px);
 }
+
+.modal-frame {
+	scroll-margin-top: 100px;
+}
+
 /* Modal styles */
 .modal {
 	display: none;

@@ -178,7 +178,8 @@ function openModal(frames, index) {
 	modelFrames = document.querySelectorAll('.modal-frame'); // Assuming frames have the class 'modal-frame'
 	console.log(modelFrames.length + ' frames found');
 	modal.focus();
-	updateCurrentModalFrame();
+	currentFrameIndex = 0;
+	modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
 }
 
 function sendSubmission(video, timestamp) {
