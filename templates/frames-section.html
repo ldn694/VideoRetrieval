@@ -9,7 +9,7 @@
 				<div class="suggestion card col-md-2" id="suggestion-{{ index }}" draggable="true" ondragstart="dragFrame(event)" 
 					ondragover="allowDropFrame(event)" ondrop="dropFrame(event)" ondragend="onDragEndFrame(event)">
 					<div class="card-header">
-						<a href="https://www.youtube.com/embed/{{ video_urls[suggestion.frames[0][0]] }}?start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}" 
+						<a href="https://www.youtube.com/embed/{{ video_urls[suggestion.frames[0][0]] }}?start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}&autoplay=1" 
 							target="_blank" class="video-name card-link" style="width:100%">{{ suggestion.frames[0][0] }}</a>
 						<button type="button" class="btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
 					</div>
