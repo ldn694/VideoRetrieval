@@ -148,7 +148,8 @@ function openModal(frames, index) {
 				<div class="col-md-3 ps-3">
 					<h5>
 						Frame ${frame[1]}
-						<button type="button" class="btn no-outline btn-outline-primary btn-sm">
+						<button type="button" class="btn no-outline btn-outline-primary btn-sm"
+							onclick="sendSubmission('${video}', '${frame[2]*1000}')">
 							<i class="fa-solid fa-arrow-up-right-from-square"></i>
 						</button>
 					</h5>
@@ -178,4 +179,10 @@ function openModal(frames, index) {
 	console.log(modelFrames.length + ' frames found');
 	modal.focus();
 	updateCurrentModalFrame();
+}
+
+function sendSubmission(video, timestamp) {
+	const url = `http://localhost:5002/?video_name=${video}&timestamp=${timestamp}`;
+	console.log('Sending submission to:', url);
+	window.open(url, '_blank');
 }
