@@ -58,6 +58,9 @@ def get_collection(keyframes_name):
         return collection_3_new, "keyframes_new"
     elif keyframes_name == '3_old':
         return collection_3_old, "keyframes"
+    elif keyframes_name == '3_refined':
+        # do sth 
+        return None
     else:
         return None
 
