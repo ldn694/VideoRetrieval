@@ -48,6 +48,7 @@ collection_12_new = chroma_client.get_collection("image_embeddings_new")
 collection_12_old = chroma_client.get_collection("image_embeddings")
 collection_3_new = chroma_client.get_collection("b3_new")
 collection_3_old = chroma_client.get_collection("b3_baseline")
+collection_3_new_refine = chroma_client.get_collection("b3_new_refine")
 
 def get_collection(keyframes_name):
     if keyframes_name == '12_new':
@@ -60,7 +61,7 @@ def get_collection(keyframes_name):
         return collection_3_old, "keyframes"
     elif keyframes_name == '3_refined':
         # do sth 
-        return None
+        return collection_3_new_refine, "keyframes_new"
     else:
         return None
 
@@ -143,8 +144,12 @@ def submit():
                 # img.save(buffered, format="JPEG")
                 # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 local_ip = socket.gethostbyname(socket.gethostname())
+                if video_name[:3] == "L25" and keyframes == "3_new":
+                    main_name = "keyframes_new_tmp"
+                else:
+                    main_name = keyframes_name
                 img_str = os.path.join(
-                     f'http://{local_ip}:8000', keyframes_name, video_name, file_name)
+                     f'http://{local_ip}:8000', main_name, video_name, file_name)
                 img_str = '/'.join(img_str.split('\\'))
             else:
                 #  # Generate a transparent image and convert it to base64
