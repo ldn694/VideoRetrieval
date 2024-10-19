@@ -115,12 +115,13 @@ def submit():
     session['num_frames'] = num_frames  # Save num_frames to session
     session['csv_filename'] = csv_filename
     session['query_disable'] = query_disable
-
+    
     # Create suggestions for clips
+    enabled_queries = [query for i, query in queries if i not in query_disable]
     suggestions = retrieve_frames_multiple_queries(
-        queries, folder_path, num_frames, device, model, collection, file_paths, preprocess, db_mode)
+        enabled_queries, folder_path, num_frames, device, model, collection, file_paths, preprocess, db_mode)
 
-    # TODO: Load all the keyframes for the suggestions
+    map_id = generate_map_id(query_disable, len(queries))
     for suggestion in suggestions:
         frames = suggestion['frames']
         highest_sim_id = 0
@@ -129,27 +130,17 @@ def submit():
             file_name = frame[5]
             if is_show_image:
                 # # Load the image
-                # img = Image.open(os.path.join(
-                #     folder_path, keyframes_name, video_name, file_name))
-                # # Convert image to base64
-                # buffered = io.BytesIO()
-                # img.save(buffered, format="JPEG")
-                # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 local_ip = socket.gethostbyname(socket.gethostname())
                 img_str = os.path.join(
                      f'http://{local_ip}:8000', keyframes_name, video_name, file_name)
                 img_str = '/'.join(img_str.split('\\'))
             else:
                 #  # Generate a transparent image and convert it to base64
-                # img = getTransparentImage()
-                # buffered = io.BytesIO()
-                # img.save(buffered, format="JPEG")  # Using PNG to retain transparency
-                # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 img_str = ""
             # Convert the tuple to a list, modify it, and convert it back to a tuple
             frame_list = list(frame)
             # Replace the file name with the base64 image
-            # frame_list[4] = map_id[frame_list[4]]
+            frame_list[4] = map_id[frame_list[4]]
             frame_list[5] = img_str
             frames[i] = tuple(frame_list)
             if frame[3] > frames[highest_sim_id][3]:
@@ -188,6 +179,16 @@ def submit():
         sort="none"
     )
 
+
+def generate_map_id(query_disable, num_queries):
+    map_id = {}
+    retrieved_id = 0
+    for i in range(num_queries):
+        if i not in query_disable:
+            map_id[retrieved_id] = i
+            print(f"Map id {retrieved_id} to {i}")
+            retrieved_id += 1
+    return map_id
 
 def load_video_urls():
     video_urls = {}
