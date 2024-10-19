@@ -117,7 +117,7 @@ def submit():
     session['query_disable'] = query_disable
     
     # Create suggestions for clips
-    enabled_queries = [query for i, query in queries if i not in query_disable]
+    enabled_queries = [(i, query) for (i, query) in queries if i not in query_disable]
     suggestions = retrieve_frames_multiple_queries(
         enabled_queries, folder_path, num_frames, device, model, collection, file_paths, preprocess, db_mode)
 
