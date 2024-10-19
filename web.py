@@ -141,7 +141,7 @@ def submit():
                 # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
                 local_ip = socket.gethostbyname(socket.gethostname())
                 img_str = os.path.join(
-                     f'http://{local_ip}:8000', keyframes_name, video_name, file_name)
+                     f'http://localhost:8000', keyframes_name, video_name, file_name)
                 img_str = '/'.join(img_str.split('\\'))
             else:
                 #  # Generate a transparent image and convert it to base64
