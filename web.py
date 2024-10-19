@@ -67,10 +67,12 @@ def index():
     num_frames = session.get('num_frames', 200)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
     queries = session.get('queries', [(0, '')])
+    query_disable = session.get('query_disable', [])
     return render_template('index.html',
                            num_frames=num_frames,
                            csv_filename=csv_filename,
                            queries=queries,
+                           query_disable=query_disable,
                            sort="none")
 
 
@@ -81,6 +83,7 @@ def submit():
     # get all queries from the form
     queries = [(i, query) for i, query in enumerate(
         request.form.getlist('query[]'), start=0)]
+    query_disable = [int(id) for id in request.form.getlist('query_disable[]')]
     folder_path = settings.DATA_PATH
     num_frames = int(request.form.get('num_frames'))
     csv_filename = request.form.get('file_name', 'query-p1-1-kis.csv')
@@ -90,16 +93,8 @@ def submit():
     is_show_image = show_image is not None
     keyframes = request.form.get('keyframes')
     print("Keyframes:", keyframes, "; DB Mode: ", db_mode)
+    print("Disable queries:", query_disable)
     
-    # TODO: change this
-    # if keyframes == '12_old':
-    #    do sth
-    # elif keyframes == '12_new':
-    #    do sth
-    # elif keyframes == '3_old':
-    #    do sth
-    # elif keyframes == '3_new':
-    #    do sth
     collection, keyframes_name = get_collection(keyframes)
 
     # if upload folder does not exist, create it
@@ -119,6 +114,7 @@ def submit():
     # Process the form data as needed
     session['num_frames'] = num_frames  # Save num_frames to session
     session['csv_filename'] = csv_filename
+    session['query_disable'] = query_disable
 
     # Create suggestions for clips
     suggestions = retrieve_frames_multiple_queries(
@@ -153,6 +149,7 @@ def submit():
             # Convert the tuple to a list, modify it, and convert it back to a tuple
             frame_list = list(frame)
             # Replace the file name with the base64 image
+            # frame_list[4] = map_id[frame_list[4]]
             frame_list[5] = img_str
             frames[i] = tuple(frame_list)
             if frame[3] > frames[highest_sim_id][3]:
@@ -180,6 +177,7 @@ def submit():
     return render_template(
         'index.html',
         queries=queries,
+        query_disable=query_disable,
         image_queries=image_queries,
         suggestions=suggestions,
         video_urls=video_urls,
@@ -345,6 +343,7 @@ def sort():
     return render_template('index.html',
                            queries=queries,
                            image_queries=image_queries,
+                           query_disable=session.get('query_disable', []),
                            suggestions=suggestions,
                            num_frames=num_frames,
                            csv_filename=csv_filename,
