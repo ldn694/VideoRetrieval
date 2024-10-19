@@ -9,7 +9,8 @@ function addTextarea() {
 	// newTextarea.ondragend = dragEndQuery;
 	newTextarea.innerHTML = `
 		<label class="form-label mb-0" style="width:100%" for="query_${num_queries}">
-			Text #${num_queries}
+			Text #${num_queries} / 
+			<input type="checkbox" class="disable-textarea-checkbox" data-textarea-id="query_${num_queries}" onchange="disableTextarea(this)"> Disable
 			<button type="button" class="btn btn-outline-danger no-outline delete-query float-end" onclick="deleteTextarea(this)">
 				<i class="fa-regular fa-trash-can"></i></button>
 		</label>
@@ -70,4 +71,10 @@ function deleteTextarea(button) {
 // 		dragged.classList.remove("dragging");
 // 	}
 // }
+
+function disableTextarea(element) {
+	const textareaId = element.getAttribute('data-textarea-id');
+	const textarea = document.getElementById(textareaId);
+	textarea.disabled = element.checked;
+}
 
