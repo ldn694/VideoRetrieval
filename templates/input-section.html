@@ -44,41 +44,32 @@
 				{% endfor %}
 			{% endif %}
 		</div>
-		<div class="input-group mb-3">
+		<p class="mb-3">Configurations</p>
+		<div class="input-group mb-2">
 			<label for="num_frames" class="input-group-text">No. frames:</label>
 			<input type="number" id="num_frames" class="form-control" name="num_frames" value="{{ num_frames }}" required>   
 		</div>
-		{% if db_mode %}
-			<input class="form-control" type="hidden" name="db_mode" id="db_mode" value="{{ db_mode }}">
-		{% else %}
-			<input class="form-control" type="hidden" name="db_mode" id="db_mode" value="standard">
-		{% endif %}
-		<div class="input-group mb-3" style="width:100%">
+		<div class="input-group mb-2" style="width:100%">
 			<label for="db_mode" class="input-group-text">DB mode:</label>
-			<button class="btn btn-outline-dark dropdown-toggle" 
-					type="button" id="DBDropdown" data-bs-toggle="dropdown"
-					style="z-index: 1;">
-				{% if db_mode == "slow" %}
-					Slow
-				{% elif db_mode == 'fast' %}
-					Fast
-				{% else %}
-					Standard
-				{% endif %}
-			</button>
-			<ul class="dropdown-menu" aria-labelledby="DBDropdown">
-				<li><a class="dropdown-item" href="#" onclick="changeDBMode('fast')">Fast</a></li>
-				<li><a class="dropdown-item" href="#" onclick="changeDBMode('standard')">Standard</a></li>
-				<li><a class="dropdown-item" href="#" onclick="changeDBMode('slow')">Slow</a></li>
-			</ul>
+			<select class="form-select" aria-label="DBDropdown" id="db_mode" name="db_mode">
+				<option value="fast">Fast</option>
+				<option value="standard" selected>Standard</option>
+				<option value="slow">Slow</option>
+			</select>
 		</div>
-		<div class="form-check form-switch">
-			<input class="form-check-input" type="checkbox" id="show_image" name="show_image" checked>
-			<label class="form-check-label" for="theme">Show Images</label>
+		<div class="input-group mb-2">
+			<label class="input-group-text" for="keyframes">Keyframes:</label>
+			<select class="form-select" aria-label="Keyframes batch" 
+				id="keyframes" name="keyframes">
+				<option value="12_old">Batch 1&2 (old)</option>
+				<option value="12_new">Batch 1&2 (new) </option>
+				<option value="3_old">Batch 3 (old)</option>
+				<option value="3_new" selected>Batch 3 (new)</option>
+			</select>
 		</div>
 		<div class="form-check form-switch mb-3">
-			<input class="form-check-input" type="checkbox" id="new_keyframes" name="new_keyframes" checked>
-			<label class="form-check-label" for="theme">Use New Keyframes</label>
+			<input class="form-check-input" type="checkbox" id="show_image" name="show_image" checked>
+			<label class="form-check-label" for="theme">Show Images</label>
 		</div>
 		<button class="btn btn-primary mb-1" type="submit" id="submit-button">Submit</button>
 		{% if execution_time %}

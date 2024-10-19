@@ -44,7 +44,22 @@ def getTransparentImage():
 
 chroma_client = chromadb.PersistentClient(path=os.path.join(
     settings.DATA_PATH, 'AIC_db'))
-collection = chroma_client.get_collection("image_embeddings_new")
+collection_12_new = chroma_client.get_collection("image_embeddings_new")
+collection_12_old = chroma_client.get_collection("image_embeddings")
+collection_3_new = chroma_client.get_collection("b3_new")
+collection_3_old = chroma_client.get_collection("b3_baseline")
+
+def get_collection(keyframes_name):
+    if keyframes_name == '12_new':
+        return collection_12_new, "keyframes_new"
+    elif keyframes_name == '12_old':
+        return collection_12_old, "keyframes"
+    elif keyframes_name == '3_new':
+        return collection_3_new, "keyframes_new"
+    elif keyframes_name == '3_old':
+        return collection_3_old, "keyframes"
+    else:
+        return None
 
 
 @app.route('/')
@@ -73,13 +88,19 @@ def submit():
     db_mode = request.form.get('db_mode')
     show_image = request.form.get('show_image')
     is_show_image = show_image is not None
-    new_keyframes = request.form.get('new_keyframes')
-    if new_keyframes is not None:
-        keyframes_name = 'keyframes_new'
-        collection = chroma_client.get_collection("image_embeddings_new")
-    else:
-        keyframes_name = 'keyframes'
-        collection = chroma_client.get_collection("image_embeddings")
+    keyframes = request.form.get('keyframes')
+    print("Keyframes:", keyframes, "; DB Mode: ", db_mode)
+    
+    # TODO: change this
+    # if keyframes == '12_old':
+    #    do sth
+    # elif keyframes == '12_new':
+    #    do sth
+    # elif keyframes == '3_old':
+    #    do sth
+    # elif keyframes == '3_new':
+    #    do sth
+    collection, keyframes_name = get_collection(keyframes)
 
     # if upload folder does not exist, create it
     if not os.path.exists(os.path.join(app.static_folder, app.config['UPLOAD_FOLDER'])):

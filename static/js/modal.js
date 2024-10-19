@@ -70,7 +70,7 @@ function updateCurrentModalFrame() {
 	cards.forEach((card, i) => {
 		const rect = card.getBoundingClientRect();
 		const distance = Math.abs(rect.top + modal.getBoundingClientRect().top);
-		console.log(distance);
+		// console.log(distance);
 		if (distance < closestCardDistance) {
 			closestCardDistance = distance;
 			closestCardIndex = i;
@@ -146,7 +146,13 @@ function openModal(frames, index) {
 			<div class="d-flex justify-content-between flex-wrap">
 				<img class="modal-frame mb-3 col-md-9" src=${frame[5]}>
 				<div class="col-md-3 ps-3">
-					<h5>Frame ${frame[1]}</h5>
+					<h5>
+						Frame ${frame[1]}
+						<button type="button" class="btn no-outline btn-outline-primary btn-sm"
+							onclick="sendSubmission('${video}', '${frame[2]*1000}')">
+							<i class="fa-solid fa-arrow-up-right-from-square"></i>
+						</button>
+					</h5>
 					<div class="form-check mb-3">
 						<input class="form-check-input" type="radio" name="mainFrame"
 							onclick='${onclick}' 
@@ -172,5 +178,12 @@ function openModal(frames, index) {
 	modelFrames = document.querySelectorAll('.modal-frame'); // Assuming frames have the class 'modal-frame'
 	console.log(modelFrames.length + ' frames found');
 	modal.focus();
-	updateCurrentModalFrame();
+	currentFrameIndex = 0;
+	modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
+}
+
+function sendSubmission(video, timestamp) {
+	const url = `http://localhost:5002/?video_name=${video}&timestamp=${timestamp}`;
+	console.log('Sending submission to:', url);
+	window.open(url, '_blank');
 }

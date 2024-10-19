@@ -281,7 +281,7 @@ def retrieve_frames_multiple_queries(queries, folder_path,
     print("Number of frames: ", num_frames)
     print(f"DB Mode: {db_mode}")
 
-    if collection.name == 'image_embeddings':
+    if collection.name == 'image_embeddings' or collection.name == 'b3_baseline':
         len_file_name = 7
     else:
         len_file_name = 9
