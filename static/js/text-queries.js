@@ -72,3 +72,10 @@ function deleteTextarea(button) {
 // 	}
 // }
 
+const submitButton = document.getElementById('submit-button');
+document.addEventListener('keydown', function(event) {
+	if (event.ctrlKey && event.key === 'Enter') {
+		submitButton.click();
+	}
+});
+
