@@ -125,7 +125,7 @@ def submit():
     suggestions = retrieve_frames_multiple_queries(
         enabled_queries, folder_path, num_frames, device, model, collection, file_paths, preprocess, db_mode)
 
-    map_id = generate_map_id(query_disable, len(queries))
+    map_id = generate_map_id(query_disable, len(queries) + len(file_paths))
     for suggestion in suggestions:
         frames = suggestion['frames']
         highest_sim_id = 0
