@@ -148,11 +148,13 @@ function openModal(frames, index) {
 				<div class="col-md-3 ps-3">
 					<h5>
 						Frame ${frame[1]}
-						<button type="button" class="btn no-outline btn-outline-primary btn-sm"
+					</h5>
+					<div class="d-grid mb-2">
+						<button type="button" class="btn btn-outline-primary btn-sm"
 							onclick="sendSubmission('${video}', '${frame[2]*1000}')">
 							<i class="fa-solid fa-arrow-up-right-from-square"></i>
 						</button>
-					</h5>
+					</div>
 					<div class="form-check mb-3">
 						<input class="form-check-input" type="radio" name="mainFrame"
 							onclick='${onclick}' 
