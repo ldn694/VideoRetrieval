@@ -73,7 +73,9 @@
 			<input class="form-check-input" type="checkbox" id="show_image" name="show_image" checked>
 			<label class="form-check-label" for="theme">Show Images</label>
 		</div>
-		<button class="btn btn-primary mb-1" type="submit" id="submit-button">Submit</button>
+		<div class="d-grid mb-1">
+			<button class="btn btn-primary btn-block" type="submit" id="submit-button">Submit</button>
+		</div>
 		{% if execution_time %}
 			<div id="execution-time" class="alert alert-info">
 				Last run: {{ execution_time }} seconds
