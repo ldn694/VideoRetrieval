@@ -11,39 +11,19 @@
 					<div class="card-header">
 						<a href="https://www.youtube.com/embed/{{ video_urls[suggestion.frames[0][0]] }}?start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}&autoplay=1" 
 							target="_blank" class="video-name card-link" style="width:100%">{{ suggestion.frames[0][0] }}</a>
-						<button type="button" class="btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button>
+						<!-- 
+							<button type="button" class="btn-close btn-sm btn-outline-danger float-end" aria-label="Close" onclick="deleteCard(this)"></button> 
+							-->
+						({{ suggestion.frames|length }})
 					</div>
 					{% if suggestion.frames[suggestion.main_frame][5] %}
-						<img class="thumbnail"
+						<img class="thumbnail card-img-bottom"
 							id="thumbnail-{{ index }}"
 							type="button"
 							src="{{ suggestion.frames[suggestion.main_frame][5] }}" 
 							loading="lazy"
 							onclick='openModal({{ suggestion.frames | tojson | safe }}, {{ index }})'>
 					{% endif %}
-					<div class="card-body suggestion-info">
-						<p class="sim mb-1">Sim: {{ suggestion.frames[suggestion.main_frame][3] | round(6) }}</p>
-						<p class="main-frame mb-1">Frame: {{ suggestion.frames[suggestion.main_frame][1] }}</p>
-						<p class="unique-id mb-1">Unique ID: {{ suggestion.num_unique }} </p>
-						<!-- Frame scores -->
-						<div class="dropdown">
-							<button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
-								{{ suggestion.frames|length }} frame(s)
-							</button>
-							<ul class="dropdown-menu">
-							{% for frame in suggestion.frames %}
-								<li><h5 class="dropdown-header">Frame {{ frame[1] }}</h5></li>
-								<li class="dropdown-item" 
-									onclick='updateMainFrame("{{ frame[1] }}", "{{ frame[3] }}", "{{ frame[5] }}", 
-																"{{ index }}", {{ suggestion.frames | tojson | safe }})'>
-									Score: {{ frame[3] }} <br>
-									Timestamp: {{ frame[2] }}s <br>
-									Query ID: {{ frame[4] }}
-								</li>
-							{% endfor %}
-							</ul>
-						</div>
-					</div>
 				</div>
 			{% endfor %}
 		{% endif %}
