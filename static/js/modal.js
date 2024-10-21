@@ -26,6 +26,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
 		}
 	});
 
+	// Open modal with Ctrl + V
+	document.addEventListener('keydown', function(event) {
+		if (event.ctrlKey && event.key === 'v') {
+			// Open the modal with the first suggestion
+			const firstSuggestion = document.getElementById('thumbnail-0');
+			if (firstSuggestion) {
+				firstSuggestion.click();
+			} else {
+				console.error('First suggestion not found.');
+			}
+		}
+	});
+
 	// Scroll to the next or previous frame when pressing the down or up arrow keys
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'ArrowLeft' | event.key === 'ArrowRight') {
@@ -121,7 +134,7 @@ function closeModal() {
 }
 
 // Modal Logic
-function openModal(frames, index, mainFrame) {
+function openModal(frames, index, videoLink) {
 	currentSuggestion = index;
 	console.log('Opening modal...');
 	// get the index-th suggestion
@@ -136,35 +149,18 @@ function openModal(frames, index, mainFrame) {
 	// var query_id = frames[0][4];
 
 	modal.style.display = "block";
-	modelTitle.textContent = `${video}`;
+	modelTitle.innerHTML = `
+		<a href="${videoLink}" target="_blank">${video}</a>
+	`
 	modalBody.innerHTML = '';
 	// loop through the frames and add them to the modal body
 	for (let i = 0; i < frames.length; i++) {
 		const frame = frames[i];
 		const onclick = `updateMainFrame(${frame[1]}, ${frame[3]}, "${frame[5]}", "${index}", ${JSON.stringify(frames).replace(/"/g, '&quot;')})`;
 		modalBody.innerHTML += `
-			<div class="d-flex justify-content-between flex-wrap">
-				<img class="modal-frame mb-3 col-md-9" src=${frame[5]}>
-				<div class="col-md-3 ps-3">
-					<h5>
-						Frame ${frame[1]}
-					</h5>
-					<div class="d-grid mb-2">
-						<button type="button" class="btn btn-outline-primary btn-sm"
-							onclick="sendSubmission('${video}', '${frame[2]*1000}')">
-							<i class="fa-solid fa-arrow-up-right-from-square"></i>
-						</button>
-					</div>
-					<div class="form-check mb-3">
-						<input class="form-check-input" type="radio" name="mainFrame"
-							onclick='${onclick}' 
-							id="frameRadio-${i}" ${mainFrame === frame[1] ? 'checked' : ''}>
-						<label class="form-check-label" for="frameRadio-${i}">
-							Set as main frame
-						</label>
-					</div>
-				</div>
-			</div>
+			<img class="modal-frame col-lg-2 col-md-3 col-sm-4 p-1" src=${frame[5]}
+				type="button"
+				onclick="sendSubmission('${video}', '${frame[2]*1000}')">
 		`;
 		if (i < frames.length - 1) {
 			modalBody.innerHTML += '<hr>';

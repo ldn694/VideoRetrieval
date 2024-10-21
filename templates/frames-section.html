@@ -22,7 +22,7 @@
 							type="button"
 							src="{{ suggestion.frames[suggestion.main_frame][5] }}" 
 							loading="lazy"
-							onclick='openModal({{ suggestion.frames | tojson | safe }}, {{ index }}, {{ suggestion.main_frame }})'>
+							onclick='openModal({{ suggestion.frames | tojson | safe }}, {{ index }}, "https://www.youtube.com/embed/{{ video_urls[suggestion.frames[0][0]] }}?start={{ suggestion.frames[0][2] }}&end={{ suggestion.frames[-1][2] }}&autoplay=1")'>
 					{% endif %}
 				</div>
 			{% endfor %}
