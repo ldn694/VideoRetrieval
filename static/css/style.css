@@ -22,10 +22,10 @@
 	max-height: 99vh;
 	padding-top: 10px;
 	padding-top: 10px;
-	gap: 10px;
+	gap: 5px;
 }
 .frames-section > .card {
-	width: calc(20% - 10px);
+	width: calc(20% - 5px);
 }
 
 .modal-frame {

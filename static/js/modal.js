@@ -121,14 +121,11 @@ function closeModal() {
 }
 
 // Modal Logic
-function openModal(frames, index) {
+function openModal(frames, index, mainFrame) {
 	currentSuggestion = index;
 	console.log('Opening modal...');
 	// get the index-th suggestion
 	const card = document.getElementById(`suggestion-${index}`);
-	const mainFrameElement = card.querySelector('.main-frame');
-	// get the number in "Frame: 1" and convert it to an integer
-	const mainFrameID = parseInt(mainFrameElement.textContent.split(' ')[1]);
 
 	var modal = document.getElementById("myModal");
 	var modelTitle = document.querySelector('.modal-title');
@@ -161,17 +158,11 @@ function openModal(frames, index) {
 					<div class="form-check mb-3">
 						<input class="form-check-input" type="radio" name="mainFrame"
 							onclick='${onclick}' 
-							id="frameRadio-${i}" ${mainFrameID === frame[1] ? 'checked' : ''}>
+							id="frameRadio-${i}" ${mainFrame === frame[1] ? 'checked' : ''}>
 						<label class="form-check-label" for="frameRadio-${i}">
 							Set as main frame
 						</label>
 					</div>
-					<h6>Details</h6>
-					<ul>
-						<li>Sim: ${frame[3]}</li>
-						<li>Timestamp: ${frame[2]}s</li>
-						<li>Query ID: ${frame[4]}</li>
-					</ul>
 				</div>
 			</div>
 		`;

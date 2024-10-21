@@ -1,6 +1,6 @@
 {% block frames_section %}
 <!-- Right section for frames and suggestions display -->
-<div class="col-md-9 right-section">
+<div class="col-md-10 right-section">
 	<!-- Suggestions Display Section (for clip view mode) -->
 	<div class="frames-section" id = "framesSection">
 		{% if suggestions %}
@@ -22,7 +22,7 @@
 							type="button"
 							src="{{ suggestion.frames[suggestion.main_frame][5] }}" 
 							loading="lazy"
-							onclick='openModal({{ suggestion.frames | tojson | safe }}, {{ index }})'>
+							onclick='openModal({{ suggestion.frames | tojson | safe }}, {{ index }}, {{ suggestion.main_frame }})'>
 					{% endif %}
 				</div>
 			{% endfor %}
