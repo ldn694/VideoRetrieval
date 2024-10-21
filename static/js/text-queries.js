@@ -25,6 +25,41 @@ function addTextarea() {
 	num_queries += 1;
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.query-textarea').forEach(function(textarea) {
+        textarea.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey) {
+                event.preventDefault();
+                addTextareaBelow(this);
+            }
+        });
+    });
+});
+
+function addTextareaBelow(currentTextarea) {
+    const newTextareaContainer = document.createElement('div');
+    newTextareaContainer.className = 'textarea-container mb-2';
+    newTextareaContainer.innerHTML = `
+        <label class="form-label mb-0" style="width:100%" for="query_${num_queries}">
+            Text <span class="query-number">#${num_queries}</span> /
+            <input name="query_disable[]" type="checkbox" class="disable-textarea-checkbox"> Disable
+            <button type="button" class="btn btn-outline-danger no-outline delete-query float-end" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
+        </label>
+        <textarea type="text" name="query[]" class="form-control sm-8 query-textarea" rows="2" placeholder="Your query" required></textarea>
+    `;
+    currentTextarea.closest('.textarea-container').insertAdjacentElement('afterend', newTextareaContainer);
+    const newTextarea = newTextareaContainer.querySelector('textarea');
+    newTextarea.focus();
+    newTextarea.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey) {
+            event.preventDefault();
+            addTextareaBelow(this);
+        }
+    });
+	num_queries += 1;
+	updateQueryNumbers();
+}
+
 function updateQueryNumbers() {
 	const queryNumbers = document.querySelectorAll('.textarea-container .query-number');
 	let globalIndex = 0;
@@ -78,4 +113,5 @@ document.addEventListener('keydown', function(event) {
 		submitButton.click();
 	}
 });
+
 

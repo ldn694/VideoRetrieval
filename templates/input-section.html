@@ -12,7 +12,9 @@
 						<input name="query_disable[]" type="checkbox" class="disable-textarea-checkbox" value="{{ query_id }}" {% if query_id in query_disable %}checked{% endif %}> Disable
 						<button type="button" class="btn btn-outline-danger no-outline delete-query float-end" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
 					</label>
-					<textarea type="text" id="query_{{ query_id }}" name="query[]" class="form-control sm-8" rows="2" placeholder="Your query" required>{{ query_text }}</textarea>
+					<textarea type="text" id="query_{{ query_id }}" name="query[]" 
+						class="form-control sm-8 query-textarea" rows="2"
+						placeholder="Your query" required>{{ query_text }}</textarea>
 				</div>
 			{% endfor %}
 		</div>
