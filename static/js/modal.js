@@ -2,6 +2,7 @@ let modelFrames = document.querySelectorAll('.modal-frame'); // Assuming frames 
 const modal = document.getElementById('myModal');
 let currentFrameIndex = 0;
 var currentSuggestion = -1;
+let closeButton = document.getElementById('closeModalButton');
 
 document.addEventListener('DOMContentLoaded', (event) => {
 	const modalBody = modal.querySelector('.modal-body');
@@ -14,42 +15,43 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	// Close the modal when clicking outside of the modal content
 	window.onclick = function(event) {
 		if (event.target == modal) {
-			closeModal();
+			closeButton.click();
 		}
 	};
 
 	// Close the modal when pressing the Esc key
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'Escape') {
-			closeModal();
+			closeButton.click();
 		}
 	});
 
 	// Scroll to the next or previous frame when pressing the down or up arrow keys
 	document.addEventListener('keydown', function(event) {
-		if (event.key === 'ArrowDown' | event.key === 'ArrowUp') {
+		if (event.key === 'ArrowLeft' | event.key === 'ArrowRight') {
 			// Prevent the default behavior of the arrow keys
 			event.preventDefault();
 		}
-		if (event.key === 'ArrowDown') {
-			// Scroll to the next frame
-			console.log('ArrowDown');
-			if (currentFrameIndex < modelFrames.length - 1) {
-				console.log('Scrolling to the next frame');
-				currentFrameIndex++;
-				modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
-				event.preventDefault();
-			}
-		} else if (event.key === 'ArrowUp') {
-			console.log('ArrowUp');
-			// Scroll to the previous frame
-			if (currentFrameIndex > 0) {
-				console.log('Scrolling to the previous frame');
-				currentFrameIndex--;
-				modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
-				event.preventDefault();
-			}
-		} else if (event.key === 'ArrowLeft') {
+		// if (event.key === 'ArrowDown') {
+		// 	// Scroll to the next frame
+		// 	console.log('ArrowDown');
+		// 	if (currentFrameIndex < modelFrames.length - 1) {
+		// 		console.log('Scrolling to the next frame');
+		// 		currentFrameIndex++;
+		// 		modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
+		// 		event.preventDefault();
+		// 	}
+		// } else if (event.key === 'ArrowUp') {
+		// 	console.log('ArrowUp');
+		// 	// Scroll to the previous frame
+		// 	if (currentFrameIndex > 0) {
+		// 		console.log('Scrolling to the previous frame');
+		// 		currentFrameIndex--;
+		// 		modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
+		// 		event.preventDefault();
+		// 	}
+		// } else 
+		if (event.key === 'ArrowLeft') {
 			viewPreviousSuggestion();
 		} else if (event.key === 'ArrowRight') {
 			viewNextSuggestion();
@@ -115,6 +117,7 @@ function closeModal() {
 	var modal = document.getElementById("myModal");
 	modal.style.display = "none";
 	currentSuggestion = -1;
+	console.log(currentSuggestion)
 }
 
 // Modal Logic
