@@ -28,13 +28,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 	// Open modal with Ctrl + V
 	document.addEventListener('keydown', function(event) {
-		if (currentSuggestion === -1 && event.ctrlKey && event.key === 'v') {
-			// Open the modal with the first suggestion
-			const firstSuggestion = document.getElementById('thumbnail-0');
-			if (firstSuggestion) {
-				firstSuggestion.click();
+		if (event.ctrlKey && event.key === 'v') {
+			if (currentSuggestion === -1) {
+				// Open the modal with the first suggestion
+				const firstSuggestion = document.getElementById('thumbnail-0');
+				if (firstSuggestion) {
+					firstSuggestion.click();
+				} else {
+					console.error('First suggestion not found.');
+				}
 			} else {
-				console.error('First suggestion not found.');
+				let title = document.querySelector('.modal-title');
+				let videoLink = title.querySelector('a').href;
+				window.open(videoLink, '_blank');
 			}
 		}
 	});
