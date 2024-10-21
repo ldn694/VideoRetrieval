@@ -9,7 +9,7 @@ function addTextarea() {
 	// newTextarea.ondragend = dragEndQuery;
 	newTextarea.innerHTML = `
 		<label class="form-label mb-0" style="width:100%" for="query_${num_queries}">
-			Text #${num_queries} / 
+			Text <span class="query-number">#${num_queries}</span> /
 			<input type="checkbox" class="disable-textarea-checkbox" name="query_disable[]" value="${num_queries}"> Disable
 			<button type="button" class="btn btn-outline-danger no-outline delete-query float-end" onclick="deleteTextarea(this)">
 				<i class="fa-regular fa-trash-can"></i></button>
@@ -26,10 +26,10 @@ function addTextarea() {
 }
 
 function updateQueryNumbers() {
-	const queryNumbers = document.querySelectorAll('.textarea-container .input-group-text');
+	const queryNumbers = document.querySelectorAll('.textarea-container .query-number');
 	let globalIndex = 0;
 	queryNumbers.forEach((queryNumber, index) => {
-		queryNumber.textContent = globalIndex;
+		queryNumber.textContent = `#${globalIndex}`;
 		globalIndex += 1;
 	});
 	const imageNumbers = document.querySelectorAll('.accordion-item .accordion-button');

@@ -8,7 +8,7 @@
 			{% for query_id, query_text in queries %}
 				<div class="textarea-container mb-2"> <!-- draggable="true" ondragstart="dragQuery(event)" ondragover="allowDropQuery(event)" ondrop="dropQuery(event)"> -->
 					<label class="form-label mb-0" for="query_{{ query_id }}" style="width:100%">
-						Text #{{ query_id }} /                    
+						Text <span class="query-number">#{{ query_id }}</span> /                    
 						<input name="query_disable[]" type="checkbox" class="disable-textarea-checkbox" value="{{ query_id }}" {% if query_id in query_disable %}checked{% endif %}> Disable
 						<button type="button" class="btn btn-outline-danger no-outline delete-query float-end" onclick="deleteTextarea(this)"><i class="fa-regular fa-trash-can"></i></button>
 					</label>
