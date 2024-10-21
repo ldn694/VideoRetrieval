@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 	// Open modal with Ctrl + V
 	document.addEventListener('keydown', function(event) {
-		if (event.ctrlKey && event.key === 'v') {
+		if (currentSuggestion === -1 && event.ctrlKey && event.key === 'v') {
 			// Open the modal with the first suggestion
 			const firstSuggestion = document.getElementById('thumbnail-0');
 			if (firstSuggestion) {
