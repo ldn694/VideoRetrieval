@@ -334,9 +334,12 @@ def sort():
     num_frames = session.get('num_frames', 200)  # Default to 100 if not set
     csv_filename = session.get('file_name', 'query-p1-1-kis.csv')
     queries = session.get('queries', [(0, '')])
+    query_disable = session.get('query_disable', [])
     file_paths = session.get('image_paths', [])
     execution_time = session.get('execution_time', None)
     image_queries = get_img_str_from_paths(file_paths, len(queries))
+    
+    map_id = generate_map_id(query_disable, len(queries) + len(file_paths))
 
     if sort == 'none':
         pass
@@ -344,7 +347,13 @@ def sort():
         for suggestion in suggestions:
             suggestion['main_frame'] = suggestion['best_frame']
     elif not len(sort) == 0:
-        query_id = int(sort)
+        # find x where map_id[x] == sort
+        query_id = -1
+        for key, value in map_id.items():
+            if value == int(sort):
+                query_id = key
+                break
+        assert query_id != -1, "Query ID not found"
         for suggestion in suggestions:
             suggestion['main_frame'] = suggestion['max_frames'][query_id]
 

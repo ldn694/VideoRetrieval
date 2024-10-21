@@ -136,7 +136,9 @@
 						<li><a class="dropdown-item" href="#" onclick="sortFrame('best_frame')">Best frame</a></li>
 						{% set total_queries = queries|length + image_queries|length %}
 						{% for query_id in range(total_queries) %}
-							<li><a class="dropdown-item" href="#" onclick="sortFrame('{{ query_id }}')">Query {{ query_id }}</a></li>
+							{% if query_id not in query_disable %}
+								<li><a class="dropdown-item" href="#" onclick="sortFrame('{{ query_id }}')">Query {{ query_id }}</a></li>
+							{% endif %}
 						{% endfor %}
 					</ul>
 				</div>
