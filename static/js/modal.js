@@ -83,12 +83,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	});
 });
 
-modal.addEventListener('keyup', function(event) {
-	if (event.key === 'Tab') {
-		console.log(event.target.textContent);
-	}
-});
-
 function updateCurrentModalFrame() {
 	// check if modal is opened
 	if (currentSuggestion === -1) {
