@@ -26,9 +26,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
 		}
 	});
 
-	// Open modal with Ctrl + V
+	// Open modal with Ctrl + Shift + V
 	document.addEventListener('keydown', function(event) {
-		if (event.ctrlKey && event.key === 'v') {
+		// console.log(`Key pressed: ${event.key}, Ctrl: ${event.ctrlKey}, Shift: ${event.shiftKey}`);
+		if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'v') {
 			if (currentSuggestion === -1) {
 				// Open the modal with the first suggestion
 				const firstSuggestion = document.getElementById('thumbnail-0');
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 				let videoLink = title.querySelector('a').href;
 				window.open(videoLink, '_blank');
 			}
-		}
+		} 
 	});
 
 	// Scroll to the next or previous frame when pressing the down or up arrow keys
