@@ -3,6 +3,10 @@ const modal = document.getElementById('myModal');
 let currentFrameIndex = 0;
 var currentSuggestion = -1;
 let closeButton = document.getElementById('closeModalButton');
+const modalTitle = modal.querySelector('.modal-title');
+const focusableElements = 'button, [tabindex="0"]';
+let firstFocusableElement;
+let lastFocusableElement;
 
 document.addEventListener('DOMContentLoaded', (event) => {
 	const modalBody = modal.querySelector('.modal-body');
@@ -79,6 +83,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	});
 });
 
+modal.addEventListener('keyup', function(event) {
+	if (event.key === 'Tab') {
+		console.log(event.target.textContent);
+	}
+});
+
 function updateCurrentModalFrame() {
 	// check if modal is opened
 	if (currentSuggestion === -1) {
@@ -136,19 +146,15 @@ function triggerThumbnailClick(index) {
 function closeModal() {
 	var modal = document.getElementById("myModal");
 	modal.style.display = "none";
+	document.removeEventListener('keydown', trapFocus);
 	currentSuggestion = -1;
-	console.log(currentSuggestion)
 }
 
 // Modal Logic
 function openModal(frames, index, videoLink) {
 	currentSuggestion = index;
 	console.log('Opening modal...');
-	// get the index-th suggestion
-	const card = document.getElementById(`suggestion-${index}`);
-
-	var modal = document.getElementById("myModal");
-	var modelTitle = document.querySelector('.modal-title');
+	var modalTitle = document.querySelector('.modal-title');
 	var modalBody = document.querySelector('.modal-body');
 	// var sim = frames[0][3];
 	// var frame = frames[0][1];
@@ -156,18 +162,18 @@ function openModal(frames, index, videoLink) {
 	// var query_id = frames[0][4];
 
 	modal.style.display = "block";
-	modelTitle.innerHTML = `
+	modalTitle.innerHTML = `
 		<a href="${videoLink}" target="_blank">${video}</a>
 	`
 	modalBody.innerHTML = '';
 	// loop through the frames and add them to the modal body
 	for (let i = 0; i < frames.length; i++) {
 		const frame = frames[i];
-		const onclick = `updateMainFrame(${frame[1]}, ${frame[3]}, "${frame[5]}", "${index}", ${JSON.stringify(frames).replace(/"/g, '&quot;')})`;
 		modalBody.innerHTML += `
-			<img class="modal-frame col-lg-2 col-md-3 col-sm-4 p-1" src=${frame[5]}
+			<img class="modal-frame col-lg-2 col-md-3 col-sm-4" src=${frame[5]}
 				type="button"
-				onclick="sendSubmission('${video}', '${frame[2]*1000}')">
+				onclick="sendSubmission('${video}', '${frame[2]*1000}')"
+				tabindex="0">
 		`;
 		if (i < frames.length - 1) {
 			modalBody.innerHTML += '<hr>';
@@ -176,9 +182,42 @@ function openModal(frames, index, videoLink) {
 
 	modelFrames = document.querySelectorAll('.modal-frame'); // Assuming frames have the class 'modal-frame'
 	console.log(modelFrames.length + ' frames found');
-	modal.focus();
 	currentFrameIndex = 0;
-	modelFrames[currentFrameIndex].scrollIntoView({ behavior: 'instant' });
+    const focusableContent = modal.querySelectorAll(focusableElements);
+    firstFocusableElement = focusableContent[0];
+    lastFocusableElement = focusableContent[focusableContent.length - 1];
+    firstFocusableElement.focus(); // Focus the first element
+    document.addEventListener('keydown', trapFocus);
+}
+
+// Function to trap focus inside the modal
+function trapFocus(event) {
+    if (event.key === 'Tab') {
+        // Shift + Tab
+        if (event.shiftKey) {
+            if (document.activeElement === firstFocusableElement) {
+                event.preventDefault();
+                lastFocusableElement.focus(); // Loop back to the last element
+            }
+        }
+        // Tab without shift
+        else {
+            if (document.activeElement === lastFocusableElement) {
+                event.preventDefault();
+                firstFocusableElement.focus(); // Loop back to the first element
+            }
+        }
+    }
+    // Handle Enter key on focused images to simulate click
+    if (event.key === 'Enter' && document.activeElement.tagName === 'IMG') {
+        document.activeElement.click();
+    }
+}
+
+// Example function to handle image clicks
+function handleImageClick(imgElement) {
+    console.log(`Image clicked: ${imgElement.alt}`);
+    // Your custom logic here
 }
 
 function sendSubmission(video, timestamp) {
